@@ -1,0 +1,206 @@
+﻿<Window x:Class="WpfApplicationMD.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="600" Width="825">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="436*"/>
+            <ColumnDefinition Width="83*"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.Column="1" Background="Orange" />
+        <Label Content="电警" HorizontalAlignment="Left" Margin="51,41,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="EPip"  HorizontalAlignment="Left" Height="23" Margin="141,43,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"  >
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Style.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsFocused" Value="False"></Condition>
+                                <Condition Property="Text" Value=""></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <VisualBrush AlignmentX="Left" AlignmentY="Top" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <TextBlock Padding="5,2" Background="Transparent" Foreground="Silver"  FontSize="14">请输入电警IP</TextBlock>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </MultiTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+        <Label Content="信号机 " HorizontalAlignment="Left" Margin="51,82,0,0" VerticalAlignment="Top"/>
+        <TextBox  Name="SCip" HorizontalAlignment="Left" Height="23" Margin="141,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="TextBox_SCIPChanged">
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Style.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsFocused" Value="False"></Condition>
+                                <Condition Property="Text" Value=""></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <VisualBrush AlignmentX="Left" AlignmentY="Top" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <TextBlock Padding="5,2" Background="Transparent" Foreground="Silver"  FontSize="14">请输入信号机IP</TextBlock>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </MultiTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+        <Label Content="平台" HorizontalAlignment="Left" Margin="51,123,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="PLip" HorizontalAlignment="Left" Height="23" Margin="141,126,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120">
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Style.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsFocused" Value="False"></Condition>
+                                <Condition Property="Text" Value=""></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <VisualBrush AlignmentX="Left" AlignmentY="Top" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <TextBlock Padding="5,2" Background="Transparent" Foreground="Silver"  FontSize="14">请输入平台IP</TextBlock>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </MultiTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+        <Label Content="IP" HorizontalAlignment="Left" Margin="177,10,0,0" VerticalAlignment="Top"/>
+        <Label Content="Port" HorizontalAlignment="Left" Height="26" Margin="308,10,0,0" VerticalAlignment="Top" Width="60"/>
+        <TextBlock Name="EPport" HorizontalAlignment="Left" Margin="308,41,0,0" TextWrapping="Wrap" Text="7200" VerticalAlignment="Top" Height="25" Width="98"/>
+        <TextBlock Name="SCport" HorizontalAlignment="Left" Margin="308,82,0,0" TextWrapping="Wrap" Text="20000" VerticalAlignment="Top" Height="25" Width="98"/>
+        <TextBox Name="PLport"  HorizontalAlignment="Left" Height="23" Margin="281,126,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="74">
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Style.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsFocused" Value="False"></Condition>
+                                <Condition Property="Text" Value=""></Condition>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <VisualBrush AlignmentX="Left" AlignmentY="Top" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <TextBlock Padding="5,2" Background="Transparent" Foreground="Silver"  FontSize="14">平台端口号</TextBlock>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </MultiTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+
+        <DataGrid x:Name="dataGrid" ItemsSource="{Binding}" FrozenColumnCount="1" AutoGenerateColumns="False"  CanUserAddRows="True"  RowEditEnding="dataGrid1_RowEditEnding" RowDetailsVisibilityMode="VisibleWhenSelected" SelectionMode="Extended" SelectionUnit="Cell" SelectedCellsChanged="dataGrid1_SelectedCellsChanged" VerticalAlignment="Top" Height="140" Margin="390,18,27.2,0"  >
+            <!--从1开始 1表示第一列 这里如果要固定我的操作列就设置为1-->
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="操作" Width="40">
+                    <DataGridColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="White" Offset="0"/>
+                                        <GradientStop Color="Yellow" Offset="0.5"/>
+                                        <GradientStop Color="White" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="Width" Value="70"/>
+                        </Style>
+                    </DataGridColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox Click="CheckBox_Click" Tag="{Binding FID}"></CheckBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="车道号" Width="80" Binding="{Binding LaneNub,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTemplateColumn Header="方向">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=方向}"/>
+                            <!--显示状态时显示 TextBlock里的值-->
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <!--编辑状态就切换到ComboBox里进行下拉选择操作ItemsSource="{Binding Source={StaticResource Direction}}"-->
+                            <ComboBox x:Name="taskCombo"  SelectedItem ="{Binding Path=方向}"  IsSynchronizedWithCurrentItem="False"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridCheckBoxColumn Header="通道号" Width="80" 
+                                        Binding="{Binding channel,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+            </DataGrid.Columns>
+            <DataGrid.RowHeaderStyle>
+                <Style TargetType="DataGridRowHeader">
+                    <Setter Property="Width" Value="15"/>
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="White" Offset="0"/>
+                                <GradientStop Color="LightBlue" Offset="0.5"/>
+                                <GradientStop Color="White" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="FontSize" Value="13" />
+                </Style>
+            </DataGrid.RowHeaderStyle>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="LightBlue" />
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <!--当鼠标经过时 改变颜色-->
+                            <Setter Property="Background" Value="SkyBlue"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <!--单元格被选中时 改变颜色-->
+                            <Setter Property="Background" Value="LightPink"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.CellStyle>
+        </DataGrid>
+        <Button Content="添加" Name="btnAdd" HorizontalAlignment="Left" Margin="405,176,0,0" VerticalAlignment="Top" Width="75" Click="btnAdd_Click"/>
+        <Button Content="保存" Name="btnSave" HorizontalAlignment="Left" Margin="505,176,0,0" VerticalAlignment="Top" Width="75" Click="btnSave_Click"/>
+        <Button Content="删除" Name="btnDelete" HorizontalAlignment="Left" Margin="602,176,0,0" VerticalAlignment="Top" Width="75" Click="btnDelete_Click"/>
+        <Button Content="开始" HorizontalAlignment="Left" Margin="51,473,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
+        <Button Content="停止" HorizontalAlignment="Left" Margin="214,473,0,0" VerticalAlignment="Top" Width="75" Click="btnStop_Click"/>
+        <ListBox Name="lstbxMessageView"  HorizontalAlignment="Left" Height="254" Margin="30,191,0,0" VerticalAlignment="Top" Width="356" RenderTransformOrigin="0.421,0.112" SelectionChanged="listBox_SelectionChanged"/>
+
+    </Grid>
+
+</Window>
+    
