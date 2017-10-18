@@ -199,6 +199,7 @@
         <Button Content="开始" HorizontalAlignment="Left" Margin="51,473,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
         <Button Content="停止" HorizontalAlignment="Left" Margin="214,473,0,0" VerticalAlignment="Top" Width="75" Click="btnStop_Click"/>
         <ListBox Name="lstbxMessageView"  HorizontalAlignment="Left" Height="254" Margin="30,191,0,0" VerticalAlignment="Top" Width="356" RenderTransformOrigin="0.421,0.112" SelectionChanged="listBox_SelectionChanged"/>
+        <TextBlock Name="tbxMessageSend"  HorizontalAlignment="Left" Margin="332,473,0,0" TextWrapping="Wrap" Text="6e6e0000009e0000" VerticalAlignment="Top" Height="22" Width="315"/>
 
     </Grid>
 

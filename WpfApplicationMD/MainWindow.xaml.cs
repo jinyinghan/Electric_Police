@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Threading;
+using Microsoft.VisualBasic;
 
 
 namespace WpfApplicationMD
@@ -25,6 +26,8 @@ public enum Direction { 左转直行,左转,直行,右转,右转直行 };
         private UdpClient receiveUpdClient;
         private BackgroundWorker bgWorker = new BackgroundWorker();
         private int i = 0;
+        public  String tmpSCip;
+        public String tmpSCport;
 
 public MainWindow()
         {
@@ -37,10 +40,13 @@ public MainWindow()
             */ 
             //IPv4
              IPAddress ips = Dns.GetHostAddresses(Dns.GetHostName()).Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).First();
-//             EPip.Text = ips.ToString();
-//             SCip.Text = ips.ToString();
+             EPip.Text = ips.ToString();
+             SCip.Text = ips.ToString();
              PLip.Text = ips.ToString();
 
+            tmpSCip = SCip.Text;
+            tmpSCport = SCport.Text;
+            //tmpSCport = "41883";
             int port = 61883;
              PLport.Text = port.ToString();
 
@@ -153,8 +159,7 @@ public MainWindow()
         {
 
 
-            Thread t = new Thread(new ThreadStart(ThreadSearch));
-            t.Start();
+
 
             if (!bgWorker.IsBusy)
             {
@@ -167,10 +172,12 @@ public MainWindow()
             IPEndPoint localIpEndPoint = new IPEndPoint(localIp, int.Parse(PLport.Text));
             receiveUpdClient = new UdpClient(localIpEndPoint);
 
-
             Thread receiveThread = new Thread(ReceiveMessage);
             receiveThread.Start();
 
+
+            Thread t = new Thread(new ThreadStart(ThreadSearch));
+            t.Start();
 
         }
         // 接收消息方法
@@ -235,7 +242,98 @@ public MainWindow()
             {
                 //线程action代码...待添加
                 MessageBox.Show("我帅不帅?.!", "消息");
+                //匿名模式
+                //sendUdpClient = new UdpClient(0);
+                // 实名模式(套接字绑定到本地指定的端口)
+                IPAddress localIp = IPAddress.Parse(EPip.Text);
+                IPEndPoint localIpEndPoint = new IPEndPoint(localIp, int.Parse(EPport.Text));
+                sendUdpClient = new UdpClient(localIpEndPoint);
+
+                Thread sendThread = new Thread(SendMessage);
+                sendThread.Start(tbxMessageSend.Text);
             });
+        }
+
+        //十六进制转换为字符串
+        public string Data_Hex_Asc(ref string Data)
+        {
+
+
+            string Data1 = "";
+
+
+            string sData = "";
+
+
+            while (Data.Length > 0)
+
+
+            //first take two hex value using substring.
+
+
+            //then convert Hex value into ascii.
+
+
+            //then convert ascii value into character.
+            {
+
+                Data1 = System.Convert.ToChar(System.Convert.ToUInt32(Data.Substring(0, 2), 16)).ToString();
+
+
+                sData = sData + Data1;
+
+
+                Data = Data.Substring(2, Data.Length - 2);
+            }
+            return sData;
+        }
+
+        public string Data_Asc_Hex(ref string Data)
+        {
+
+            //first take each charcter using substring.
+
+            //then convert character into ascii.
+
+            //then convert ascii value into Hex Format
+
+            string sValue;
+
+            string sHex = "";
+
+            while (Data.Length > 0)
+            {
+
+                sValue = Microsoft.VisualBasic.Conversion.Hex(Strings.Asc(Data.Substring(0, 1).ToString()));
+
+                Data = Data.Substring(1, Data.Length - 1);
+
+                sHex = sHex + sValue;
+
+            }
+
+            return sHex;
+        }
+        // 发送消息方法
+        private void SendMessage(object obj)
+        {
+            string message = (string)obj;
+            message = Data_Hex_Asc(ref message);
+
+            byte[] sendbytes = System.Text.Encoding.Unicode.GetBytes(message);
+            IPAddress remoteIp = IPAddress.Parse(tmpSCip);
+            IPEndPoint remoteIpEndPoint = new IPEndPoint(remoteIp, int.Parse(tmpSCport));
+            int i = 0;
+            while (i<5)
+            {
+                System.Threading.Thread.Sleep(1);
+                sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);
+                i++;
+            }
+            //sendUdpClient.Close();
+
+            // 清空发送消息框
+ //           ResetMessageText(tbxMessageSend);
         }
   
 
@@ -243,6 +341,8 @@ public MainWindow()
         {
             bgWorker.CancelAsync();
  //           this.Dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Normal);
+            sendUdpClient.Close();
+            receiveUpdClient.Close();
 
         }
 
