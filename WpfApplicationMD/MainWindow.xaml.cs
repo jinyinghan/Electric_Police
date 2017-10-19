@@ -8,6 +8,17 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Threading;
 using Microsoft.VisualBasic;
+using System.Text;
+using System.Text.RegularExpressions;
+using MahApps.Metro;
+using MahApps.Metro.Controls;
+using System.Windows.Media;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
 
 namespace WpfApplicationMD
@@ -20,7 +31,7 @@ namespace WpfApplicationMD
     /// </summary>
 
 public enum Direction { 左转直行,左转,直行,右转,右转直行 };
-    public partial class MainWindow : Window
+public partial class MainWindow//:MetroWindow 
     {
         private UdpClient sendUdpClient;
         private UdpClient receiveUpdClient;
@@ -29,7 +40,7 @@ public enum Direction { 左转直行,左转,直行,右转,右转直行 };
         public  String tmpSCip;
         public String tmpSCport;
 
-public MainWindow()
+        public MainWindow()
         {
             InitializeComponent();
             /* 
@@ -46,7 +57,7 @@ public MainWindow()
 
             tmpSCip = SCip.Text;
             tmpSCport = SCport.Text;
-            //tmpSCport = "41883";
+            //tmpSCport = "31588";
             int port = 61883;
              PLport.Text = port.ToString();
 
@@ -60,7 +71,40 @@ public MainWindow()
             bgWorker.ProgressChanged += ProgressChanged_Handler;
             //退出时发生
             bgWorker.RunWorkerCompleted += RunWorkerCompleted_Handler;
-        }
+/*
+            btnSkin.Click += (s, e) => skinUI.IsOpen = true;
+            skinPanel.AddHandler(Button.ClickEvent, new RoutedEventHandler(ChangeSkin));
+            InitSkins();
+*/        }
+/// <summary>  
+/// 初始化所有皮肤控件  
+/// </summary>  
+private void InitSkins()
+{
+    var accents = ThemeManager.Accents;
+    Style btnStyle = App.Current.FindResource("btnSkinStyle") as Style;
+    foreach (var accent in accents)
+    {
+        //新建换肤按钮  
+        Button btnskin = new Button();
+        btnskin.Style = btnStyle;
+        btnskin.Name = accent.Name;
+        SolidColorBrush scb = accent.Resources["AccentColorBrush"] as SolidColorBrush;
+        btnskin.Background = scb;
+        skinPanel.Children.Add(btnskin);
+    }
+}
+/// <summary>  
+/// 实现换肤  
+/// </summary>  
+private void ChangeSkin(object obj, RoutedEventArgs e)
+{
+    if (e.OriginalSource is Button)
+    {
+        Accent accent = ThemeManager.GetAccent((e.OriginalSource as Button).Name);
+        App.Current.Resources.MergedDictionaries.Last().Source = accent.Resources.Source;
+    }
+}  
 
 
         int judge = 0;   //0表示编辑状态，1为添加状态。因为后面的增加和编辑都在同一个事件中，所以建一个变量来区分操作  
@@ -191,10 +235,15 @@ public MainWindow()
                     // 关闭receiveUdpClient时此时会产生异常
                     byte[] receiveBytes = receiveUpdClient.Receive(ref remoteIpEndPoint);
 
-                    string message = System.Text.Encoding.Unicode.GetString(receiveBytes);
+                    //                   string message = System.Text.Encoding.Unicode.GetString(receiveBytes);
 
                     // 显示消息内容
-                    ShowMessageforView(lstbxMessageView, string.Format("{0}[{1}]", remoteIpEndPoint, message));
+                    //                   ShowMessageforView(lstbxMessageView, string.Format("{0}[{1}]", remoteIpEndPoint, message));
+                    for (int i = 288; i < 320; i++)
+                    {
+                        ShowMessageforView(lstbxMessageView, string.Format("{0}[{1}]", remoteIpEndPoint, receiveBytes[i]));
+
+                    }
                 }
                 catch
                 {
@@ -250,9 +299,30 @@ public MainWindow()
                 sendUdpClient = new UdpClient(localIpEndPoint);
 
                 Thread sendThread = new Thread(SendMessage);
-                sendThread.Start(tbxMessageSend.Text);
+                sendThread.Start();
             });
         }
+/*
+        public static String bytesToHexString(byte[] src)
+        {
+            StringBuilder stringBuilder = new StringBuilder("");
+            if (src == null || src.length <= 0)
+            {
+                return null;
+            }
+            for (int i = 0; i < src.length; i++)
+            {
+                int v = src[i] & 0xFF;
+                String hv = Integer.toHexString(v);
+                if (hv.length() < 2)
+                {
+                    stringBuilder.append(0);
+                }
+                stringBuilder.append(hv);
+            }
+            return stringBuilder.toString();
+        }
+        */
 
         //十六进制转换为字符串
         public string Data_Hex_Asc(ref string Data)
@@ -317,19 +387,20 @@ public MainWindow()
         // 发送消息方法
         private void SendMessage(object obj)
         {
-            string message = (string)obj;
-            message = Data_Hex_Asc(ref message);
+//           string message = (string)obj;
+//           message = Data_Hex_Asc(ref message);
+//          byte[] sendbytes = System.Text.Encoding.Unicode.GetBytes(message);
+            byte[] sendbytes = new byte[]{0x6e,0x6e,0x0,0x0,0x9e,0x0,0x0,0x0};
 
-            byte[] sendbytes = System.Text.Encoding.Unicode.GetBytes(message);
             IPAddress remoteIp = IPAddress.Parse(tmpSCip);
             IPEndPoint remoteIpEndPoint = new IPEndPoint(remoteIp, int.Parse(tmpSCport));
             int i = 0;
-            while (i<5)
-            {
-                System.Threading.Thread.Sleep(1);
+          //  while (i<5)
+            //{
+              //  System.Threading.Thread.Sleep(1);
                 sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);
-                i++;
-            }
+               // i++;
+            //}
             //sendUdpClient.Close();
 
             // 清空发送消息框
@@ -406,6 +477,192 @@ public MainWindow()
 
         private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+
+        }
+
+        private void btnCommit_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.radiobutton1.IsChecked == true)
+            {
+                if (string.IsNullOrWhiteSpace(textbox1.Text))
+                {
+                    MessageBox.Show("不得为空");
+                    textbox1.Focus();
+                }
+                else
+                {
+                    string str = textbox1.Text;
+                    string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
+                    foreach (string i in sArray)
+                        // int num3 = int.Parse(i.ToString());
+                        if (int.Parse(i.ToString()) > 32)
+                        {
+                            MessageBox.Show("通道号不得大于32");
+                        }
+
+                }
+
+
+
+
+            }
+            else
+            {
+                MessageBox.Show("选择相对的记录操作");
+            }
+            if (grid12.Visibility == Visibility.Visible)
+            {
+                if (this.radiobutton2.IsChecked == true)
+                {
+                    if (string.IsNullOrWhiteSpace(textbox2.Text))
+                    {
+                        MessageBox.Show("不得为空");
+                        textbox1.Focus();
+                    }
+                    else
+                    {
+                        string str = textbox2.Text;
+                        string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
+                        foreach (string i in sArray)
+                            // int num3 = int.Parse(i.ToString());
+                            if (int.Parse(i.ToString()) > 32)
+                            {
+                                MessageBox.Show("通道号不得大于32");
+                            }
+
+                    }
+
+
+
+
+                }
+                else
+                {
+                    MessageBox.Show("选择相对的记录操作");
+                }
+            }
+            if (grid13.Visibility == Visibility.Visible)
+            {
+                if (this.radiobutton3.IsChecked == true)
+                {
+                    if (string.IsNullOrWhiteSpace(textbox3.Text))
+                    {
+                        MessageBox.Show("不得为空");
+                        textbox1.Focus();
+                    }
+                    else
+                    {
+                        string str = textbox3.Text;
+                        string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
+                        foreach (string i in sArray)
+                            // int num3 = int.Parse(i.ToString());
+                            if (int.Parse(i.ToString()) > 32)
+                            {
+                                MessageBox.Show("通道号不得大于32");
+                            }
+
+                    }
+
+
+
+
+                }
+                else
+                {
+                    MessageBox.Show("选择相对的记录操作13");
+                }
+            }
+            if (grid14.Visibility == Visibility.Visible)
+            {
+                if (this.radiobutton4.IsChecked == true)
+                {
+                    if (string.IsNullOrWhiteSpace(textbox4.Text))
+                    {
+                        MessageBox.Show("不得为空");
+                        textbox1.Focus();
+                    }
+                    else
+                    {
+                        string str = textbox4.Text;
+                        string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
+                        foreach (string i in sArray)
+                            // int num3 = int.Parse(i.ToString());
+                            if (int.Parse(i.ToString()) > 32)
+                            {
+                                MessageBox.Show("通道号不得大于32");
+                            }
+
+                    }
+
+
+
+
+                }
+                else
+                {
+                    MessageBox.Show("选择相对的记录操作14");
+                }
+            }
+            if (grid15.Visibility == Visibility.Visible)
+            {
+                if (this.radiobutton5.IsChecked == true)
+                {
+                    if (string.IsNullOrWhiteSpace(textbox5.Text))
+                    {
+                        MessageBox.Show("不得为空");
+                        textbox1.Focus();
+                    }
+                    else
+                    {
+                        string str = textbox5.Text;
+                        string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
+                        foreach (string i in sArray)
+                            // int num3 = int.Parse(i.ToString());
+                            if (int.Parse(i.ToString()) > 32)
+                            {
+                                MessageBox.Show("通道号不得大于32");
+                            }
+
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("选择相对的记录操作");
+                }
+
+            } 
+
+
+        }
+
+        private void textbox1_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(textbox1.Text))
+            {
+                MessageBox.Show("不得为空");
+                textbox1.Focus();
+            }
+
+        }
+        int p = 2;
+
+        private void btnAddd_Click(object sender, RoutedEventArgs e)
+        {
+            if (p > 6)
+            {
+                p = 2;
+            }
+            p++;
+
+            if (p == 2)
+            { grid12.Visibility = Visibility.Visible; }
+            if (p == 3)
+            { grid13.Visibility = Visibility.Visible; }
+            if (p == 4)
+            { grid14.Visibility = Visibility.Visible; }
+            if (p == 5)
+            { grid15.Visibility = Visibility.Visible; }
 
         }
 

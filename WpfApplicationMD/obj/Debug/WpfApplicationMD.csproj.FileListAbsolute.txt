@@ -13,3 +13,8 @@ c:\users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfAp
 c:\users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\WpfApplicationMD.pdb
 C:\Users\hanjinying\Documents\Visual Studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\WindowsFormsControlLibrary1.dll
 C:\Users\hanjinying\Documents\Visual Studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\WindowsFormsControlLibrary1.pdb
+C:\Users\hanjinying\Documents\Visual Studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\App.baml
+C:\Users\hanjinying\Documents\Visual Studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\MahApps.Metro.dll
+C:\Users\hanjinying\Documents\Visual Studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\System.Windows.Interactivity.dll
+C:\Users\hanjinying\Documents\Visual Studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\MahApps.Metro.pdb
+C:\Users\hanjinying\Documents\Visual Studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\MahApps.Metro.xml
