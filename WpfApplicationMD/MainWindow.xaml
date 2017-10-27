@@ -35,7 +35,7 @@
             </TextBox.Style>
         </TextBox>
         <Label Content="信号机 " HorizontalAlignment="Left" Margin="51,82,0,0" VerticalAlignment="Top"/>
-        <TextBox  Name="SCip" HorizontalAlignment="Left" Height="23" Margin="141,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="TextBox_SCIPChanged">
+        <TextBox  Name="SCip" HorizontalAlignment="Left" Height="23" Margin="141,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" >
             <TextBox.Style>
                 <Style TargetType="TextBox">
                     <Style.Triggers>
@@ -111,7 +111,7 @@
         </TextBox>
         <Button Content="开始" HorizontalAlignment="Left" Margin="141,607,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
         <Button Content="停止" HorizontalAlignment="Left" Margin="658,607,0,0" VerticalAlignment="Top" Width="75" Click="btnStop_Click"/>
-        <ListBox Name="lstbxMessageView"  HorizontalAlignment="Left" Height="231" Margin="36,355,0,0" VerticalAlignment="Top" Width="843" RenderTransformOrigin="0.421,0.112" SelectionChanged="listBox_SelectionChanged"/>
+        <ListBox Name="lstbxMessageView"  HorizontalAlignment="Left" Height="649" Margin="0.2,10,0,0" VerticalAlignment="Top" Width="166" RenderTransformOrigin="0.421,0.112" Grid.Column="1"/>
         <Grid HorizontalAlignment="Left" Height="312" Margin="406,10,0,0" VerticalAlignment="Top" Width="484" Name="grid1">
             <Grid Name="grid10" Height="75" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" >
                 <Grid.ColumnDefinitions>
@@ -373,14 +373,13 @@
             </Border>
         </Popup>
         <Label Content="发送间隔" HorizontalAlignment="Left" Margin="52,177,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="sendA" HorizontalAlignment="Left" Height="23" Margin="115,178,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="31" TextChanged="sendA_TextChanged"  />
+        <TextBox Name="sendA" HorizontalAlignment="Left" Height="23" Margin="115,178,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="31"  />
         <Label Content="~" HorizontalAlignment="Left" Margin="151,177,0,0" VerticalAlignment="Top"/>
         <TextBox Name="sendB" HorizontalAlignment="Left" Height="23" Margin="175,178,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="31" />
         <Label Content="s" HorizontalAlignment="Left" Margin="211,177,0,0" VerticalAlignment="Top" RenderTransformOrigin="3.771,0.5"/>
+        <Button Content="清空" HorizontalAlignment="Left" Margin="840,607,0,0" VerticalAlignment="Top" Width="75" Click="btnClear_Click"/>
 
     </Grid>
-
-
 
 </Window>
     

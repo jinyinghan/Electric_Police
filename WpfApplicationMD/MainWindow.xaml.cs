@@ -33,82 +33,43 @@ namespace WpfApplicationMD
 public enum Direction { 左转直行,左转,直行,右转,右转直行 };
 public partial class MainWindow//:MetroWindow 
     {
+        private UdpClient sendJsonUdpClient;
         private UdpClient sendUdpClient;
         private UdpClient receiveUpdClient;
-        private BackgroundWorker bgWorker = new BackgroundWorker();
         private int i = 0;
-        public  String tmpSCip;
-        public String tmpSCport;
-
+        public IPAddress tmpSCip;
+        public IPAddress tmpPLip;
+        public String tmpEPip;
+        public int tmpSCport;
+        public int tmpPLport;
+        public int tmpEPport;
+        IPAddress ips = Dns.GetHostAddresses(Dns.GetHostName()).Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).First();
         public MainWindow()
         {
             InitializeComponent();
-            IPAddress ips = Dns.GetHostAddresses(Dns.GetHostName()).Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).First();
+            
+            EPip.Text = ips.ToString();
+            SCip.Text = ips.ToString();
+            PLip.Text = ips.ToString();
+            tmpEPport = int.Parse(EPport.Text);
 
-
-
-            //支持报告进度更新
-            bgWorker.WorkerReportsProgress = true;
-            //支持异步取消
-            bgWorker.WorkerSupportsCancellation = true;
-            //将DoWork_Handler绑定在RunWorkerAsync()
-            bgWorker.DoWork += DoWork_Handler;
-            //将ProgressChanged_Handler绑定在ReportProgress()
-            bgWorker.ProgressChanged += ProgressChanged_Handler;
-            //退出时发生
-            bgWorker.RunWorkerCompleted += RunWorkerCompleted_Handler;
-/*
-            btnSkin.Click += (s, e) => skinUI.IsOpen = true;
-            skinPanel.AddHandler(Button.ClickEvent, new RoutedEventHandler(ChangeSkin));
-            InitSkins();
-*/        }
-/// <summary>  
-/// 初始化所有皮肤控件  
-/// </summary>  
-private void InitSkins()
-{
-    var accents = ThemeManager.Accents;
-    Style btnStyle = App.Current.FindResource("btnSkinStyle") as Style;
-    foreach (var accent in accents)
-    {
-        //新建换肤按钮  
-        Button btnskin = new Button();
-        btnskin.Style = btnStyle;
-        btnskin.Name = accent.Name;
-        SolidColorBrush scb = accent.Resources["AccentColorBrush"] as SolidColorBrush;
-        btnskin.Background = scb;
-        skinPanel.Children.Add(btnskin);
-    }
-}
-/// <summary>  
-/// 实现换肤  
-/// </summary>  
-private void ChangeSkin(object obj, RoutedEventArgs e)
-{
-    if (e.OriginalSource is Button)
-    {
-        Accent accent = ThemeManager.GetAccent((e.OriginalSource as Button).Name);
-        App.Current.Resources.MergedDictionaries.Last().Source = accent.Resources.Source;
-    }
-}  
-
-
-        int judge = 0;   //0表示编辑状态，1为添加状态。因为后面的增加和编辑都在同一个事件中，所以建一个变量来区分操作  
-        //     TB_Information tbInfo = new TB_Information();    //这个类可以供我调用里面的方法来进行增删改查的操作  
-    /*
-        private void btnAdd_Click(object sender, RoutedEventArgs e)
-        {
-            judge = 1;  //现在为添加状态       
-            dataGrid.CanUserAddRows = true;    //点击添加后  将CanUserAddRows重新设置为True，这样DataGrid就会自动生成新行，我们就能在新行中输入数据了。  
         }
-      */  
-        //现在我们可以添加新记录了，我们接下来要做的就是获取这些新添加的记录  
 
-        //先声明一个存储新建记录集的List<T>      这里的Information是我的数据表实体类  里面包含FID ，车道号,方向,通道号  
 
-        List<Information> lstInformation = new List<Information>();
+    private int  randomNm(int n,int m)
+{
+    int iSeed = 10;
+    Random ro = new Random(iSeed);
+    long tick = DateTime.Now.Ticks;
+    Random ran = new Random((int)(tick & 0xffffffffL) | (int)(tick >> 32));
 
-        //我们通过 RowEditEnding来获取新增的记录，就是每次编辑完行后，行失去焦点激发该事件。   更新记录也是执行该事件  
+    int iResult;
+    int iUp = m;
+    int iDown = n;
+    iResult = ro.Next(iDown, iUp);
+    return iResult;       
+}
+
         public class Information
         {
             public int laneNub;
@@ -117,20 +78,12 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
             public Information() { }
 
         };
-        private void dataGrid1_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
-        {
-            Information info = new Information();   //我自己的数据表实例类  
-            info = e.Row.Item as Information;        //获取该行的记录  
-            if (judge == 1)                                          //如果是添加状态就保存该行的值到lstInformation中  这样我们就完成了新行值的获取  
-            {
-                lstInformation.Add(info);
-            }
-            else
-            {
-                //              tbInfo.UpdInformation(info);            //如果是编辑状态就执行更新操作  更新操作最简单，因为你直接可以在DataGrid里面进行编辑，编辑完成后执行这个事件就完成更新操作了  
-            }
-        }
+
         int intervalTime = 1;
+        byte[] ChannelConfig = new Byte[5];
+        int sa;
+        int sb;
+        bool randflag = false;
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
             //1.校验数据正确性        
@@ -146,8 +99,8 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
             }
             if ((!string.IsNullOrWhiteSpace(sendA.Text)) && (!string.IsNullOrWhiteSpace(sendB.Text)))
             {
-                int sa = int.Parse(sendA.Text);
-                int sb = int.Parse(sendB.Text);
+                sa = int.Parse(sendA.Text);
+                sb = int.Parse(sendB.Text);
                 if(( sa <= 0 )|| ( sb >= 10))
                 {
                     MessageBox.Show("请输入(0,10) 大于 0 小于 10 的值!");
@@ -166,6 +119,10 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                 {
                     sendA.Background = Brushes.White;
                     sendB.Background = Brushes.White;
+                    //只在配置的时候随机一次---------可能需要改到组json包处
+                    randflag = true;
+                    intervalTime = randomNm(sa, sb);
+                    MessageBox.Show("发送间隔随机", intervalTime.ToString());
                 }
             }
             if ((string.IsNullOrWhiteSpace(sendA.Text)) && (!string.IsNullOrWhiteSpace(sendB.Text)))
@@ -236,65 +193,64 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
 
             //ip正确性校验,port校验
             /***************************************************************/
+            tmpSCip = IPAddress.Parse(SCip.Text);
+            tmpSCport = int.Parse(SCport.Text);
+            tmpPLip = IPAddress.Parse(PLip.Text);
+            tmpPLport = int.Parse(PLport.Text);
+            tmpEPip = EPip.Text;
 
-            if (!bgWorker.IsBusy)
-            {
-                bgWorker.RunWorkerAsync();
-            }
-/* 
-            //IPv6
-            IPAddress[] ips = Dns.GetHostAddresses("");
-            EPip.Text = ips[3].ToString();
-            SCip.Text = ips[3].ToString();
-*/
-            //IPv4
-            IPAddress ips = Dns.GetHostAddresses(Dns.GetHostName()).Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).First();
-/*
-            EPip.Text = ips.ToString();
-            SCip.Text = ips.ToString();
-            PLip.Text = ips.ToString();
-*/
+            
 
+            Thread tx = new Thread(new ThreadStart(ThreadReqStatus));
+            tx.Start();
 
-            // 创建接收套接字
-            IPAddress localIp = IPAddress.Parse(ips.ToString());
- //           IPEndPoint localIpEndPoint = new IPEndPoint(localIp, int.Parse(PLport.Text));
-            IPEndPoint localIpEndPoint = new IPEndPoint(localIp,0);
-            receiveUpdClient = new UdpClient(localIpEndPoint);
+            Thread rx = new Thread(new ThreadStart(ThreadRcvStatus));
+            rx.Start();
 
-            Thread receiveThread = new Thread(ReceiveMessage);
-            receiveThread.Start();
-
-
-            Thread t = new Thread(new ThreadStart(ThreadGetStatus));
-            t.Start();
+            Thread toPL = new Thread(new ThreadStart(ThreadUpJson));
+            toPL.Start();
 
         }
+        bool IsUdpcRecvStart = false;//开关:在监听udp报文阶段为true,否则为false
+
+        byte[] ChannelStatus = new Byte[32];
+
         // 接收消息方法
         private void ReceiveMessage()
         {
-            IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+           tmpSCport = 31662;
+//          IPAddress remoteIp = ips;
+           IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpSCip, tmpSCport);
+           //IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, tmpSCport);
             while (true)
             {
                 try
-                {
+               {
                     // 关闭receiveUdpClient时此时会产生异常
                     byte[] receiveBytes = receiveUpdClient.Receive(ref remoteIpEndPoint);
-
-                    //                   string message = System.Text.Encoding.Unicode.GetString(receiveBytes);
-
                     // 显示消息内容
-                    //                   ShowMessageforView(lstbxMessageView, string.Format("{0}[{1}]", remoteIpEndPoint, message));
-                    for (int i = 288; i < 320; i++)
+                     if(receiveBytes.Length < 320)
                     {
-                        ShowMessageforView(lstbxMessageView, string.Format("{0}[{1}]", remoteIpEndPoint, receiveBytes[i]));
-
+                        for(int i = 0;i<receiveBytes.Length;i++)
+                        {
+                            ShowMessageforView(lstbxMessageView, string.Format("{0}[{1}]:{2}", remoteIpEndPoint,receiveBytes[i],i));                           
+                        }   
                     }
-                }
-                catch
-                {
+                    else 
+                    {
+                        for (int i = 288; i < 320; i++)
+                        {
+                            ChannelStatus[i - 288] = receiveBytes[i];
+                            ShowMessageforView(lstbxMessageView, string.Format("{0}:[{1}]_{2}", remoteIpEndPoint,(i-288),ChannelStatus[i-288]));
+                           
+                        }
+                    }
+               }
+               catch
+              {
+                    MessageBox.Show("异常退出recv");
                     break;
-                }
+               }
             }
         }
         // 利用委托回调机制实现界面上消息内容显示
@@ -329,14 +285,14 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                 //               listbox.ClearSelected();
             }
         }
+        Thread sendThread;
 
-
-        public void ThreadGetStatus()
+        public void ThreadReqStatus()
         {
-            this.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,(ThreadStart)delegate()
-            {
+ //           this.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,(ThreadStart)delegate()
+   //         {
                 //线程action代码...待添加
-                MessageBox.Show("我帅不帅?.!", "消息");
+       //         MessageBox.Show("我帅不帅?.! send 线程开始", "消息");
                 //匿名模式
                 sendUdpClient = new UdpClient(0);
                 // 实名模式(套接字绑定到本地指定的端口)
@@ -344,107 +300,118 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                 IPEndPoint localIpEndPoint = new IPEndPoint(localIp, int.Parse(EPport.Text));
                 sendUdpClient = new UdpClient(localIpEndPoint);
 */
-                Thread sendThread = new Thread(SendMessage);
+                sendThread = new Thread(SendMessage);
                 sendThread.Start();
-            });
+     //       });
+        }
+    Thread sendJsonThread;
+        public void ThreadUpJson()
+    {
+        
+        sendJsonUdpClient = new UdpClient(0);
+        sendJsonThread = new Thread(SendJsonMessage);
+        sendJsonThread.Start();
+
+    }
+        Thread receiveThread;
+        public void ThreadRcvStatus()
+        {
+            if(!IsUdpcRecvStart)//未监听的情况,开始监听
+            {
+                IPEndPoint localIpep = new IPEndPoint(ips, tmpEPport);
+
+                receiveUpdClient = new UdpClient(localIpep);
+                receiveThread = new Thread(ReceiveMessage);
+                receiveThread.Start();
+                IsUdpcRecvStart = true;
+                MessageBox.Show("recv 监听器已成功启动", "消息");
+            }
+            else//正在监听的情况,终止监听
+            {
+                receiveThread.Abort();//必须先关闭这个线程,否则会异常
+                receiveUpdClient.Close();
+
+                IsUdpcRecvStart = false;
+
+                MessageBox.Show("UDP监听器已成功启动");
+
+            }
+
         }
 
+        private void SendJsonMessage(object obj)
+        {
+            DateTime dt = DateTime.Now.ToLocalTime() ;
+            String nowTime = dt.ToString("yyyy-MM-dd hh:mm:ss");
+            String arrivalTime = dt.AddSeconds(1).ToString();   //加n秒
+            String throughTime = dt.AddSeconds(11).ToString();
+            string Lane1Json = "\"time\":\"" + nowTime + "ipv4" + tmpEPip + "arrivalStopLineTime" + arrivalTime + "throughStopLineTime" + throughTime;
+            ShowMessageforView(lstbxMessageView, Lane1Json);
+            byte[] sendbytes = System.Text.Encoding.Default.GetBytes(Lane1Json);
+
+            IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpPLip, tmpPLport);
+            MyCircleQueue<JsonPack> jsonPackQ = new MyCircleQueue<JsonPack>(4);
+            JsonPack Lane1JP = new JsonPack();
+            Lane1JP.time = dt.ToString("yyyy-MM-dd hh:mm:ss");
+            Lane1JP.ipV4 = tmpEPip;
+            Lane1JP.LaneVehicleDir = "left";//straight,right,unknown
+            Lane1JP.arrivalStopLineTime = dt.AddSeconds(1).ToString();  
+            Lane1JP.throughStopLineTime = dt.AddSeconds(11).ToString();
+            Lane1JP.sendSnapDataTime = Lane1JP.time;
+            Lane1JP.laneNo = "1";
+            jsonPackQ.Push(Lane1JP);
+            jsonPackQ.Push(Lane1JP);
+            jsonPackQ.Push(Lane1JP);
+            jsonPackQ.Push(Lane1JP);
+
+
+            int sleepMillsSec;
+            if(randflag == true)
+            {
+                intervalTime = randomNm(sa, sb);                
+            }
+            sleepMillsSec = intervalTime * 1000;
+            if(sleepMillsSec <= 0 )
+            {
+                //报错;
+            }
+
+
+            while (true)
+            {
+                System.Threading.Thread.Sleep(sleepMillsSec);
+                sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);
+            }
+        }
         // 发送消息方法
         private void SendMessage(object obj)
         {
-//           string message = (string)obj;
-//           message = Data_Hex_Asc(ref message);
-//          byte[] sendbytes = System.Text.Encoding.Unicode.GetBytes(message);
             byte[] sendbytes = new byte[]{0x6e,0x6e,0x0,0x0,0x9e,0x0,0x0,0x0};
 
-            tmpSCip = SCip.ToString();
-            tmpSCport = SCport.ToString();
-
-            IPAddress remoteIp = IPAddress.Parse(tmpSCip);
-            IPEndPoint remoteIpEndPoint = new IPEndPoint(remoteIp, int.Parse(tmpSCport));
-            int i = 0;
-            while (i<5)
+ //        IPEndPoint remoteIpEndPoint = new IPEndPoint(remoteIp, int.Parse(tmpSCport));
+            IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpSCip, 31662);
+          
+            while (true)
             {
-                System.Threading.Thread.Sleep(1);
-                sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);
-                i++;
+                System.Threading.Thread.Sleep(5000);
+                sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);             
             }
-            //sendUdpClient.Close();
-
-            // 清空发送消息框
- //           ResetMessageText(tbxMessageSend);
         }
   
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            bgWorker.CancelAsync();
  //           this.Dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Normal);
+            sendThread.Abort();
             sendUdpClient.Close();
-            receiveUpdClient.Close();
+            
+          //正在监听的情况,终止监听
+                receiveThread.Abort();//必须先关闭这个线程,否则会异常
+                receiveUpdClient.Close();
+                IsUdpcRecvStart = false;
+                MessageBox.Show("UDP监听器已成功启动");
 
-        }
-
-
-        /// <summary>
-        /// 进度更新
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        private void ProgressChanged_Handler(object sender, ProgressChangedEventArgs args)
-        {
- //           lbDisplay.Items.Add("第" + i + "次测试");
-        }
-
-        /// <summary>
-        /// 后台线程
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        private void DoWork_Handler(object sender, DoWorkEventArgs args)
-        {
-            BackgroundWorker worker = sender as BackgroundWorker;
-            while (true)
-            {
-                if (worker.CancellationPending)
-                {
-                    args.Cancel = true;
-                    break;
-                }
-                else
-                {
-                    i++;
-                    bgWorker.ReportProgress(0);
-                    Thread.Sleep(500);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 执行完成或正常退出后的事件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
-        private void RunWorkerCompleted_Handler(object sender, RunWorkerCompletedEventArgs args)
-        {
-            if (args.Cancelled)
-            {
-                MessageBox.Show("后台任务已经被取消。", "消息");
-            }
-            else
-            {
-                MessageBox.Show("后台任务正常结束。", "消息");
-            }
-        }
-
-
-        private void TextBox_SCIPChanged(object sender, TextChangedEventArgs e)
-        {
-//            tbxSendtoIp.Text =
-        }
-
-        private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+                randflag = false;
 
         }
 
@@ -473,6 +440,7 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                         else
                         {
                             textbox1.Background = Brushes.White;
+                            ChannelConfig[0] = Byte.Parse(textbox1.Text);
                         }
                     }
 
@@ -507,6 +475,7 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                             else
                             {
                                 textbox2.Background = Brushes.White;
+                                ChannelConfig[1] = Byte.Parse(textbox2.Text);
                             }
                         }
                         
@@ -542,6 +511,7 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                             else
                             {
                                 textbox3.Background = Brushes.White;
+                                ChannelConfig[2] = Byte.Parse(textbox3.Text);
                             }
                         }
 
@@ -577,6 +547,7 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                             else
                             {
                                 textbox4.Background = Brushes.White;
+                                ChannelConfig[3] = Byte.Parse(textbox4.Text);
                             }
                         }
 
@@ -612,6 +583,7 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                             else
                             {
                                 textbox5.Background = Brushes.White;
+                                ChannelConfig[4] = Byte.Parse(textbox5.Text);
                             }
                         }
 
@@ -622,15 +594,8 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                     MessageBox.Show("选择相对的记录操作");
                 }
             } 
-            if(radiobutton1.IsChecked == true)
-            {
-                Information info = new Information();   //我自己的数据表实例类  
-                info.channelNub = 1;
-           //     info.direction = CB11.
 
-
-            }
-
+            
         }
 
         private void textbox1_TextChanged(object sender, TextChangedEventArgs e)
@@ -714,12 +679,12 @@ private void ChangeSkin(object obj, RoutedEventArgs e)
                 radiobutton5.IsChecked = false;
                 textbox5.Text = null;
             }
-
-
-
         }
 
-    
+        private void btnClear_Click(object sender, RoutedEventArgs e)
+        {
+            lstbxMessageView.Items.Clear();
+        }  
     }
 }
 
