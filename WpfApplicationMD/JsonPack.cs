@@ -6,26 +6,76 @@ using System.Threading.Tasks;
 
 namespace WpfApplicationMD
 {
+    public enum Dir { TL=0,SL=1,TS=2,TR=3,SR=4};
+    public struct configInfo
+    {
+        public String ipV4_Cof;
+        public Dir dirFlag;
+        public String laneNo_Cof;
+        public String Channel_Cof;
+    };
     class JsonPack
     {
-        public String time;
-        public String ipV4;
+        public String time = DateTime.Now.ToLocalTime().ToString("yyyy-MM-dd hh:mm:ss");
+        public String ipV4 ;
         public String LaneVehicleDir;
-        public String arrivalStopLineTime;
-        public String throughStopLineTime;
-        public String sendSnapDataTime;
+        public String arrivalStopLineTime = DateTime.Now.ToLocalTime().AddSeconds(1).ToString();   //加n秒;
+        public String throughStopLineTime = DateTime.Now.ToLocalTime().AddSeconds(11).ToString();
+        public String sendSnapDataTime = DateTime.Now.ToLocalTime().ToString("yyyy-MM-dd hh:mm:ss");
         public String laneNo;
+        public String Channel;
 
-        public string ClassToJson(List<JsonPack> Class)
+        public JsonPack() { }
+        public JsonPack(configInfo conLane)
+        {
+            ipV4 = conLane.ipV4_Cof;
+           switch(conLane.dirFlag)
+           {           
+               case   Dir.TL:
+                 LaneVehicleDir = "Left";
+                 break; 
+                
+               case Dir.SL:
+                   if ( MainWindow.randomNm(0,2) == 0)
+                   {
+                       LaneVehicleDir = "Straight";
+                   }
+                   else
+                   {
+                       LaneVehicleDir = "Left";
+                   }
+                 break; 
+                 
+               case   Dir.TS:
+                 LaneVehicleDir = "Straight";
+                 break; 
+                
+               case   Dir.TR:
+                 LaneVehicleDir = "Right";
+                 break; 
+                
+               case Dir.SR:
+
+                   if ( MainWindow.randomNm(0,2) == 0)
+                   {
+                       LaneVehicleDir = "Straight";
+                   }
+                   else
+                   {
+                       LaneVehicleDir = "Right";
+                   }
+                 break;                
+           }
+        }
+
+        public string ClassToJson()
         {
             var sb = new StringBuilder();
             sb.Append("{");
-            if (Class != null)
+            if (this != null)
             {
-                foreach (var item in Class)
-                {
-                    sb.AppendFormat("\"time\":\"{0}\",\"ipV4\":\"{1}\",", item.time, item.ipV4);
-                    sb.Append("\"ipV4\":\"::\",\"port\":7200,\"macAddress\":\"54:C4:15:45:43:3A\",\"channel\":1,\"Target\":");
+                    sb.AppendFormat("\"time\":\"{0}\",\"ipV4\":\"{1}\",", this.time, this.ipV4);
+                    sb.Append("\"ipV6\":\"::\",\"port\":7200,\"macAddress\":\"54:C4:15:45:43:3A\",\"channel\":1,\"Target\":");
                     sb.Append("[");
                         sb.Append("{");
                             sb.Append("\"recognitionType\":\"vehicle\",\"TargetInfo\":{\"recognition\":\"plate\",\"Region\":\"[]\",");
@@ -36,16 +86,16 @@ namespace WpfApplicationMD
                         sb.Append("{");
                         sb.Append("\"recognitionType\":\"vehicle\",\"TargetInfo\":{\"recognition\":\"vehicle\",\"Region\":\"[]\",");
                         sb.Append("\"Property\":[");
-                        sb.AppendFormat("{\"description\":\"LaneVehicleDir\",\"value\":\"{0}\"},", item.LaneVehicleDir);
+       //               sb.AppendFormat("{\"description\":\"LaneVehicleDir\",\"value\":\"{0}\"},", this.LaneVehicleDir);
                         sb.Append("{\"description\":\"vehicle_category\",\"value\":\"vehicle\"},");
-                        sb.AppendFormat("{\"description\":\"arrivalStopLineTime\",\"value\":\"{0}\"},", item.arrivalStopLineTime);
-                        sb.AppendFormat("{\"description\":\"throughStopLineTime\",\"value\":\"{0}\"},", item.throughStopLineTime);
-                        sb.AppendFormat("{\"description\":\"sendSnapDataTime\",\"value\":\"{0}\"},", item.sendSnapDataTime);
+         //               sb.AppendFormat("{\"description\":\"arrivalStopLineTime\",\"value\":\"{0}\"},", this.arrivalStopLineTime);
+         //               sb.AppendFormat("{\"description\":\"throughStopLineTime\",\"value\":\"{0}\"},", this.throughStopLineTime);
+        //                sb.AppendFormat("{\"description\":\"sendSnapDataTime\",\"value\":\"{0}\"},", this.sendSnapDataTime);
                         sb.Append("{\"description\":\"monitorInfo\",\"value\":\"\"},");
-                        sb.AppendFormat("{\"description\":\"laneNo\",\"value\":\"{0}\"}", item.laneNo);
+       //                 sb.AppendFormat("{\"description\":\"laneNo\",\"value\":\"{0}\"}", this.laneNo);
                     sb.Append("]}}");
                     sb.Append("]");
-                }
+
                 if (sb.Length > 1)
                     sb.Remove(sb.Length - 1, 1);
 

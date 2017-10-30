@@ -21,11 +21,17 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 
+
 namespace WpfApplicationMD
 {
 
-        
-
+    public class comboDir
+    {
+        public Dir ID { get; set; }
+        public string Name { get; set; }
+        public string Image { get; set; }
+        public string Desc { get; set; }
+    }
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
@@ -34,9 +40,11 @@ public enum Direction { 左转直行,左转,直行,右转,右转直行 };
 public partial class MainWindow//:MetroWindow 
     {
         private UdpClient sendJsonUdpClient;
+
         private UdpClient sendUdpClient;
+    
         private UdpClient receiveUpdClient;
-        private int i = 0;
+              
         public IPAddress tmpSCip;
         public IPAddress tmpPLip;
         public String tmpEPip;
@@ -47,6 +55,8 @@ public partial class MainWindow//:MetroWindow
         public MainWindow()
         {
             InitializeComponent();
+
+            LodData();
             
             EPip.Text = ips.ToString();
             SCip.Text = ips.ToString();
@@ -55,8 +65,28 @@ public partial class MainWindow//:MetroWindow
 
         }
 
+        private void LodData()
+        {
+            IList<comboDir> dirList = new List<comboDir>();
+            //项目文件中新建一个images文件夹，并上传了001.png，002.png,003.png
+            dirList.Add(new comboDir() { ID = Dir.TL, Name = "左转", Image = "/resource/dir_img/1.png", Desc = "Left" });
+            dirList.Add(new comboDir() { ID = Dir.SL, Name = "直左", Image = "/resource/dir_img/2.png", Desc = "Straight & Left" });
+            dirList.Add(new comboDir() { ID = Dir.TS, Name = "直行", Image = "/resource/dir_img/3.png", Desc = "Straight" });
+            dirList.Add(new comboDir() { ID = Dir.TR, Name = "右转", Image = "/resource/dir_img/4.png", Desc = "Right" });
+            dirList.Add(new comboDir() { ID = Dir.TS, Name = "直右", Image = "/resource/dir_img/5.png", Desc = "Straight & Right" });
 
-    private int  randomNm(int n,int m)
+            this.lane1Combox.ItemsSource = dirList;//数据源绑定
+            this.lane1Combox.SelectedValue = dirList[0];//默认选择项
+            this.lane2Combox.ItemsSource = dirList;//数据源绑定
+            this.lane2Combox.SelectedValue = dirList[1];//默认选择项
+            this.lane3Combox.ItemsSource = dirList;//数据源绑定
+            this.lane3Combox.SelectedValue = dirList[2];//默认选择项
+            this.lane4Combox.ItemsSource = dirList;//数据源绑定
+            this.lane4Combox.SelectedValue = dirList[3];//默认选择项
+        }
+
+
+    public static int  randomNm(int n,int m)
 {
     int iSeed = 10;
     Random ro = new Random(iSeed);
@@ -81,6 +111,8 @@ public partial class MainWindow//:MetroWindow
 
         int intervalTime = 1;
         byte[] ChannelConfig = new Byte[5];
+        string[] dirConfig = new string[5];
+        int[] dir_C = new int[5];
         int sa;
         int sb;
         bool randflag = false;
@@ -200,17 +232,22 @@ public partial class MainWindow//:MetroWindow
             tmpEPip = EPip.Text;
 
             
-
+            //请求 信号机状态线程
             Thread tx = new Thread(new ThreadStart(ThreadReqStatus));
             tx.Start();
-
+            //接收 信号机状态线程
             Thread rx = new Thread(new ThreadStart(ThreadRcvStatus));
             rx.Start();
 
+            //组包 线程
+            Thread packjson = new Thread(new ThreadStart(ThreadPackJsonToQueue));
+            packjson.Start();
+
+            //发送 json给平台线程
             Thread toPL = new Thread(new ThreadStart(ThreadUpJson));
             toPL.Start();
-
         }
+
         bool IsUdpcRecvStart = false;//开关:在监听udp报文阶段为true,否则为false
 
         byte[] ChannelStatus = new Byte[32];
@@ -218,10 +255,10 @@ public partial class MainWindow//:MetroWindow
         // 接收消息方法
         private void ReceiveMessage()
         {
-           tmpSCport = 31662;
-//          IPAddress remoteIp = ips;
+//           tmpSCport = 31662;
+//           IPAddress remoteIp = ips;
            IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpSCip, tmpSCport);
-           //IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, tmpSCport);
+  //         IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, tmpSCport);
             while (true)
             {
                 try
@@ -313,6 +350,26 @@ public partial class MainWindow//:MetroWindow
         sendJsonThread.Start();
 
     }
+        string jsonhh;
+        public void ThreadPackJsonToQueue()
+        {
+            for (int i = 0; i < ChannelConfig.Length;i++ )
+            {
+                if (ChannelConfig[i] != 0)
+                {
+                    configInfo config = new configInfo();
+                    config.Channel_Cof = ChannelConfig[i].ToString();
+                    config.ipV4_Cof = tmpEPip;
+         //           config.dirFlag = (Dir)Enum.Parse(typeof(Dir), dirConfig[i], false);
+                    config.dirFlag = (Dir)dir_C[i];
+                    config.laneNo_Cof = (i+1).ToString();
+                    JsonPack jsClass = new JsonPack(config);
+                     jsonhh = jsClass.ClassToJson();
+                    ShowMessageforView(lstbxMessageView, jsonhh);
+                }
+
+            }
+        }
         Thread receiveThread;
         public void ThreadRcvStatus()
         {
@@ -341,29 +398,46 @@ public partial class MainWindow//:MetroWindow
 
         private void SendJsonMessage(object obj)
         {
+           
             DateTime dt = DateTime.Now.ToLocalTime() ;
             String nowTime = dt.ToString("yyyy-MM-dd hh:mm:ss");
             String arrivalTime = dt.AddSeconds(1).ToString();   //加n秒
             String throughTime = dt.AddSeconds(11).ToString();
-            string Lane1Json = "\"time\":\"" + nowTime + "ipv4" + tmpEPip + "arrivalStopLineTime" + arrivalTime + "throughStopLineTime" + throughTime;
-            ShowMessageforView(lstbxMessageView, Lane1Json);
-            byte[] sendbytes = System.Text.Encoding.Default.GetBytes(Lane1Json);
+//s            string Lane1Json = "\"time\":\"" + nowTime + "ipv4" + tmpEPip + "arrivalStopLineTime" + arrivalTime + "throughStopLineTime" + throughTime;
+ //           ShowMessageforView(lstbxMessageView, Lane1Json);
 
-            IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpPLip, tmpPLport);
-            MyCircleQueue<JsonPack> jsonPackQ = new MyCircleQueue<JsonPack>(4);
-            JsonPack Lane1JP = new JsonPack();
-            Lane1JP.time = dt.ToString("yyyy-MM-dd hh:mm:ss");
-            Lane1JP.ipV4 = tmpEPip;
-            Lane1JP.LaneVehicleDir = "left";//straight,right,unknown
-            Lane1JP.arrivalStopLineTime = dt.AddSeconds(1).ToString();  
-            Lane1JP.throughStopLineTime = dt.AddSeconds(11).ToString();
-            Lane1JP.sendSnapDataTime = Lane1JP.time;
-            Lane1JP.laneNo = "1";
-            jsonPackQ.Push(Lane1JP);
-            jsonPackQ.Push(Lane1JP);
-            jsonPackQ.Push(Lane1JP);
-            jsonPackQ.Push(Lane1JP);
+            byte[] sendbytes = System.Text.Encoding.Default.GetBytes(jsonhh);
 
+           IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpPLip, tmpPLport);
+           /*
+MyCircleQueue<JsonPack> jsonPackQ = new MyCircleQueue<JsonPack>(4);
+JsonPack Lane1JP = new JsonPack();
+Lane1JP.time = dt.ToString("yyyy-MM-dd hh:mm:ss");
+Lane1JP.ipV4 = tmpEPip;
+Lane1JP.LaneVehicleDir = "left";//straight,right,unknown
+Lane1JP.arrivalStopLineTime = dt.AddSeconds(1).ToString();  
+Lane1JP.throughStopLineTime = dt.AddSeconds(11).ToString();
+Lane1JP.sendSnapDataTime = Lane1JP.time;
+Lane1JP.laneNo = "1";
+List<JsonPack> JPLane1 = new List<JsonPack>(8);
+foreach (var item in JPLane1)
+{
+item.time = dt.ToString("yyyy-MM-dd hh:mm:ss");
+item.ipV4 = tmpEPip;
+item.LaneVehicleDir = "left";//straight,right,unknown
+item.arrivalStopLineTime = dt.AddSeconds(1).ToString();
+item.throughStopLineTime = dt.AddSeconds(11).ToString();
+item.sendSnapDataTime = item.time;
+item.laneNo = "1";
+}*/
+           /* String jsonString = JsonPack.ClassToJson(JPLane1);
+            JPLane1.Add(Lane1JP);
+
+            jsonPackQ.Push(Lane1JP);
+            jsonPackQ.Push(Lane1JP);
+            jsonPackQ.Push(Lane1JP);
+            jsonPackQ.Push(Lane1JP);
+*/
 
             int sleepMillsSec;
             if(randflag == true)
@@ -417,6 +491,8 @@ public partial class MainWindow//:MetroWindow
 
         private void btnCommit_Click(object sender, RoutedEventArgs e)
         {
+            MessageBox.Show((this.lane1Combox.SelectedItem as comboDir).ID.ToString());
+ 
             if (this.radiobutton1.IsChecked == true)
             {
                 if (string.IsNullOrWhiteSpace(textbox1.Text))
@@ -441,6 +517,8 @@ public partial class MainWindow//:MetroWindow
                         {
                             textbox1.Background = Brushes.White;
                             ChannelConfig[0] = Byte.Parse(textbox1.Text);
+                            dirConfig[0] = (this.lane1Combox.SelectedItem as comboDir).ID.ToString();
+                            dir_C[0] = (int)(this.lane1Combox.SelectedItem as comboDir).ID;
                         }
                     }
 
@@ -476,6 +554,8 @@ public partial class MainWindow//:MetroWindow
                             {
                                 textbox2.Background = Brushes.White;
                                 ChannelConfig[1] = Byte.Parse(textbox2.Text);
+                                dirConfig[1] = (this.lane2Combox.SelectedItem as comboDir).ID.ToString();
+                                dir_C[1] = (int)(this.lane2Combox.SelectedItem as comboDir).ID;
                             }
                         }
                         
@@ -512,6 +592,8 @@ public partial class MainWindow//:MetroWindow
                             {
                                 textbox3.Background = Brushes.White;
                                 ChannelConfig[2] = Byte.Parse(textbox3.Text);
+                                dirConfig[2] = (this.lane3Combox.SelectedItem as comboDir).ID.ToString();
+                                dir_C[2] = (int)(this.lane3Combox.SelectedItem as comboDir).ID;
                             }
                         }
 
@@ -548,6 +630,8 @@ public partial class MainWindow//:MetroWindow
                             {
                                 textbox4.Background = Brushes.White;
                                 ChannelConfig[3] = Byte.Parse(textbox4.Text);
+                                dirConfig[3] = (this.lane4Combox.SelectedItem as comboDir).ID.ToString();
+                                dir_C[3] = (int)(this.lane4Combox.SelectedItem as comboDir).ID;
                             }
                         }
 
@@ -594,7 +678,6 @@ public partial class MainWindow//:MetroWindow
                     MessageBox.Show("选择相对的记录操作");
                 }
             } 
-
             
         }
 
@@ -684,7 +767,8 @@ public partial class MainWindow//:MetroWindow
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             lstbxMessageView.Items.Clear();
-        }  
+        }
+
     }
 }
 

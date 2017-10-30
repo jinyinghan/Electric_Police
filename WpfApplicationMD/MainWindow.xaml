@@ -3,13 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="696.716" Width="1107.09"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro">
-
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="436*"/>
-            <ColumnDefinition Width="83*"/>
+            <ColumnDefinition Width="639*"/>
+            <ColumnDefinition Width="286*"/>
+            <ColumnDefinition Width="176*"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Row="0" Grid.Column="1" Background="Orange" />
+        <Border Grid.Row="0" Grid.Column="2" Background="Orange" Margin="0.2,0,-0.2,-0.2" />
         <Label Content="电警" HorizontalAlignment="Left" Margin="51,41,0,0" VerticalAlignment="Top"/>
         <TextBox Name="EPip"  HorizontalAlignment="Left" Height="23" Margin="141,43,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"  >
             <TextBox.Style>
@@ -110,9 +110,9 @@
             </TextBox.Style>
         </TextBox>
         <Button Content="开始" HorizontalAlignment="Left" Margin="141,607,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
-        <Button Content="停止" HorizontalAlignment="Left" Margin="658,607,0,0" VerticalAlignment="Top" Width="75" Click="btnStop_Click"/>
-        <ListBox Name="lstbxMessageView"  HorizontalAlignment="Left" Height="649" Margin="0.2,10,0,0" VerticalAlignment="Top" Width="166" RenderTransformOrigin="0.421,0.112" Grid.Column="1"/>
-        <Grid HorizontalAlignment="Left" Height="312" Margin="406,10,0,0" VerticalAlignment="Top" Width="484" Name="grid1">
+        <Button Content="停止" HorizontalAlignment="Left" Margin="18.9,607,0,0" VerticalAlignment="Top" Width="75" Click="btnStop_Click" Grid.Column="1"/>
+        <ListBox Name="lstbxMessageView"  HorizontalAlignment="Left" Height="261" Margin="10,327,0,0" VerticalAlignment="Top" Width="905" RenderTransformOrigin="0.421,0.112" Grid.ColumnSpan="2"/>
+        <Grid HorizontalAlignment="Left" Height="312" Margin="442,15,0,0" VerticalAlignment="Top" Width="473" Name="grid1" Grid.ColumnSpan="2">
             <Grid Name="grid10" Height="75" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="10*"/>
@@ -125,7 +125,7 @@
                 <TextBlock Grid.Row="0" Grid.Column="2" >方向</TextBlock>
                 <TextBlock Grid.Row="0" Grid.Column="3" >通道号</TextBlock>
             </Grid>
-            <Grid Name="grid11" Height="75" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" >
+            <Grid Name="grid11" Height="78" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Margin="0,0,1,0" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="369*"/>
                     <ColumnDefinition Width="115*"/>
@@ -139,42 +139,33 @@
                     </TransformGroup>
                 </Grid.RenderTransform>
                 <CheckBox Name="radiobutton1"  HorizontalAlignment="Left" Margin="46,35,0,0" VerticalAlignment="Top"  />
-                <!--<RadioButton Name="radiobutton1" Visibility="Hidden" Content="" HorizontalAlignment="Left" Margin="46,40,0,0" VerticalAlignment="Top" RenderTransformOrigin="3.069,0.541"/>-->
-                <!--<ComboBox HorizontalAlignment="Left" Margin="212,34,0,0" VerticalAlignment="Top" Width="120"/>-->
-                <StackPanel Margin="10" Grid.ColumnSpan="2" >
-                    <ComboBox Name="CB11" HorizontalAlignment="Left" Margin="212,25,0,0" VerticalAlignment="Top" Width="120" >
-                        <ComboBoxItem Name="L1_1l"  IsSelected="True" >
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/1.png" Height="21" Width="100" />
-                                <!-- <TextBlock Foreground="Red">左转</TextBlock>-->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L1_2sl" >
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/2.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L1_3s">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/3.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L1_4r">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/4.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L1_5sr">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/5.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                    </ComboBox>
-                </StackPanel>
+                <StackPanel Margin="10" Grid.ColumnSpan="2" />
+                <ComboBox x:Name="lane1Combox" HorizontalAlignment="Left" Margin="212,25,0,0" VerticalAlignment="Top" Width="125" Height="38"  >
+                    <!--ItemTemplate-->
+                    <ComboBox.ItemTemplate>
+                        <!--DataTemplate开始-->
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="100*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50*"/>
+                                    <RowDefinition Height="50*"/>
+                                </Grid.RowDefinitions>
+                                <!--绑定数据对象Image属性-->
+                                <Image Source="{Binding Image}" Width="32" Height="32" Margin="3,3,3,3" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" />
+                                <!--绑定数据对象Name属性-->
+                                <TextBlock Text="{Binding Name}" FontSize="12"  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                                <!--绑定数据对象Desc属性-->
+                                <TextBlock Text="{Binding Desc}" FontSize="10" Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                        <!--DataTemplate结束-->
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
                 <TextBox  IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="127,33,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="69"/>
                 <TextBox Name="textbox1" HorizontalAlignment="Left" Height="23" Margin="361,34,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="109" TextChanged="textbox1_TextChanged" Grid.ColumnSpan="2"/>
 
@@ -187,37 +178,30 @@
                 <CheckBox Name="radiobutton2" HorizontalAlignment="Left" Margin="46,60,0,0" VerticalAlignment="Top" RenderTransformOrigin="3.069,0.541"/>
                 <!--<ComboBox HorizontalAlignment="Left" Margin="212,34,0,0" VerticalAlignment="Top" Width="120"/>-->
                 <StackPanel Margin="10" >
-                    <ComboBox Name="CB12" HorizontalAlignment="Left" Margin="212,65,0,0" VerticalAlignment="Top" Width="120">
-                        <ComboBoxItem Name="L2_1l"  IsSelected="True" >
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/1.png" Height="21" Width="100" />
-                                <!-- <TextBlock Foreground="Red">左转</TextBlock>-->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L2_2sl" >
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/2.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L2_3s">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/3.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L2_4r">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/4.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L2_5sr">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/5.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
+                    <ComboBox x:Name="lane2Combox" HorizontalAlignment="Left" Margin="212,65,0,0" VerticalAlignment="Top" Width="125" Height="38"  >
+                        <!--ItemTemplate-->
+                        <ComboBox.ItemTemplate>
+                            <!--DataTemplate开始-->
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="100*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50*"/>
+                                        <RowDefinition Height="50*"/>
+                                    </Grid.RowDefinitions>
+                                    <!--绑定数据对象Image属性-->
+                                    <Image Source="{Binding Image}" Width="32" Height="32" Margin="3,3,3,3" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" />
+                                    <!--绑定数据对象Name属性-->
+                                    <TextBlock Text="{Binding Name}" FontSize="12"  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                                    <!--绑定数据对象Desc属性-->
+                                    <TextBlock Text="{Binding Desc}" FontSize="10" Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                            <!--DataTemplate结束-->
+                        </ComboBox.ItemTemplate>
                     </ComboBox>
                 </StackPanel>
                 <TextBox  IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="127,73,0,0" TextWrapping="Wrap" Text="2" VerticalAlignment="Top" Width="69"/>
@@ -231,37 +215,30 @@
                 <CheckBox Name="radiobutton3" Content="" HorizontalAlignment="Left" Margin="46,120,0,0" VerticalAlignment="Top" RenderTransformOrigin="3.069,0.541"/>
                 <!--<ComboBox HorizontalAlignment="Left" Margin="212,34,0,0" VerticalAlignment="Top" Width="120"/>-->
                 <StackPanel Margin="10" >
-                    <ComboBox Name="CB13" HorizontalAlignment="Left" Margin="212,105,0,0" VerticalAlignment="Top" Width="120">
-                        <ComboBoxItem Name="L3_1l"  IsSelected="True" >
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/1.png" Height="21" Width="100" />
-                                <!-- <TextBlock Foreground="Red">左转</TextBlock>-->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L3_2sl" >
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/2.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L3_3s">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/3.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L3_4r">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/4.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L3_5sr">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/5.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
+                    <ComboBox x:Name="lane3Combox" HorizontalAlignment="Left" Margin="212,105,0,0" VerticalAlignment="Top" Width="125" Height="38"  >
+                        <!--ItemTemplate-->
+                        <ComboBox.ItemTemplate>
+                            <!--DataTemplate开始-->
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="100*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50*"/>
+                                        <RowDefinition Height="50*"/>
+                                    </Grid.RowDefinitions>
+                                    <!--绑定数据对象Image属性-->
+                                    <Image Source="{Binding Image}" Width="32" Height="32" Margin="3,3,3,3" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" />
+                                    <!--绑定数据对象Name属性-->
+                                    <TextBlock Text="{Binding Name}" FontSize="12"  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                                    <!--绑定数据对象Desc属性-->
+                                    <TextBlock Text="{Binding Desc}" FontSize="10" Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                            <!--DataTemplate结束-->
+                        </ComboBox.ItemTemplate>
                     </ComboBox>
                 </StackPanel>
                 <TextBox  IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="127,113,0,0" TextWrapping="Wrap" Text="3" VerticalAlignment="Top" Width="69"/>
@@ -275,37 +252,30 @@
                 <CheckBox Name="radiobutton4" Content="" HorizontalAlignment="Left" Margin="46,160,0,0" VerticalAlignment="Top" RenderTransformOrigin="3.069,0.541"/>
                 <!--<ComboBox HorizontalAlignment="Left" Margin="212,34,0,0" VerticalAlignment="Top" Width="120"/>-->
                 <StackPanel Margin="10" >
-                    <ComboBox Name="CB14" HorizontalAlignment="Left" Margin="212,145,0,0" VerticalAlignment="Top" Width="120">
-                        <ComboBoxItem Name="L4_1l"  IsSelected="True" >
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/1.png" Height="21" Width="100" />
-                                <!-- <TextBlock Foreground="Red">左转</TextBlock>-->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L4_2sl" >
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/2.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L4_3s">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/3.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L4_4r">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/4.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Name="L4_5sr">
-                            <StackPanel >
-                                <Image Source="/resource/dir_img/5.png" Height="21" Width="100" />
-                                <!--  <TextBlock Foreground="Red">左转</TextBlock> -->
-                            </StackPanel>
-                        </ComboBoxItem>
+                    <ComboBox x:Name="lane4Combox" HorizontalAlignment="Left" Margin="212,145,0,0" VerticalAlignment="Top" Width="125" Height="38"  >
+                        <!--ItemTemplate-->
+                        <ComboBox.ItemTemplate>
+                            <!--DataTemplate开始-->
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="100*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50*"/>
+                                        <RowDefinition Height="50*"/>
+                                    </Grid.RowDefinitions>
+                                    <!--绑定数据对象Image属性-->
+                                    <Image Source="{Binding Image}" Width="32" Height="32" Margin="3,3,3,3" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" />
+                                    <!--绑定数据对象Name属性-->
+                                    <TextBlock Text="{Binding Name}" FontSize="12"  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                                    <!--绑定数据对象Desc属性-->
+                                    <TextBlock Text="{Binding Desc}" FontSize="10" Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Left"  VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                            <!--DataTemplate结束-->
+                        </ComboBox.ItemTemplate>
                     </ComboBox>
                 </StackPanel>
                 <TextBox  IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="127,153,0,0" TextWrapping="Wrap" Text="4" VerticalAlignment="Top" Width="69"/>
@@ -358,28 +328,28 @@
             </Grid>
 
 
-            <Button Content="提交" HorizontalAlignment="Left" Margin="71,274,0,0" VerticalAlignment="Top" Width="75" Click="btnCommit_Click"/>
-            <Button Content="增加" HorizontalAlignment="Left" Margin="300,274,0,0" VerticalAlignment="Top" Width="69" Click="btnAddd_Click"/>
-            <Button Content="删除" HorizontalAlignment="Left" Margin="188,275,0,0" VerticalAlignment="Top" Width="75" Click="btnDelete_Click"/>
+            <Button Content="提交" HorizontalAlignment="Left" Margin="107,233,0,0" VerticalAlignment="Top" Width="75" Click="btnCommit_Click"/>
+            <Button Content="增加" HorizontalAlignment="Left" Margin="336,233,0,0" VerticalAlignment="Top" Width="69" Click="btnAddd_Click"/>
+            <Button Content="删除" HorizontalAlignment="Left" Margin="224,234,0,0" VerticalAlignment="Top" Width="75" Click="btnDelete_Click"/>
 
 
         </Grid>
         <!--实现换肤-->
-        <Popup x:Name="skinUI" Margin="0" PopupAnimation="Fade" PlacementTarget="{Binding ElementName=btnSkin}"  
-             StaysOpen="False" SnapsToDevicePixels="True" ClipToBounds="True" AllowsTransparency="True" Placement="Left" VerticalOffset="25">
+        <Popup x:Name="skinUI" Margin="0,0,175.8,-0.2" PopupAnimation="Fade" PlacementTarget="{Binding ElementName=btnSkin}"  
+             StaysOpen="False" SnapsToDevicePixels="True" ClipToBounds="True" AllowsTransparency="True" Placement="Left" VerticalOffset="25" Grid.ColumnSpan="3">
             <Border x:Name="bdSkin" BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1"   
                   CornerRadius="8" Height="170" Width="450">
                 <WrapPanel x:Name="skinPanel"/>
             </Border>
         </Popup>
         <Label Content="发送间隔" HorizontalAlignment="Left" Margin="52,177,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="sendA" HorizontalAlignment="Left" Height="23" Margin="115,178,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="31"  />
-        <Label Content="~" HorizontalAlignment="Left" Margin="151,177,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="sendB" HorizontalAlignment="Left" Height="23" Margin="175,178,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="31" />
-        <Label Content="s" HorizontalAlignment="Left" Margin="211,177,0,0" VerticalAlignment="Top" RenderTransformOrigin="3.771,0.5"/>
-        <Button Content="清空" HorizontalAlignment="Left" Margin="840,607,0,0" VerticalAlignment="Top" Width="75" Click="btnClear_Click"/>
-
+        <TextBox Name="sendA" HorizontalAlignment="Left" Height="23" Margin="141,176,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="31"  />
+        <Label Content="~" HorizontalAlignment="Left" Margin="177,176,0,0" VerticalAlignment="Top" RenderTransformOrigin="17.88,0.34"/>
+        <TextBox Name="sendB" HorizontalAlignment="Left" Height="23" Margin="201,176,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="31" />
+        <Label Content="s" HorizontalAlignment="Left" Margin="237,176,0,0" VerticalAlignment="Top" RenderTransformOrigin="3.771,0.5"/>
+        <Button Content="清空" HorizontalAlignment="Left" Margin="200.9,607,0,0" VerticalAlignment="Top" Width="75" Click="btnClear_Click" Grid.Column="1"/>
     </Grid>
+
 
 </Window>
     
