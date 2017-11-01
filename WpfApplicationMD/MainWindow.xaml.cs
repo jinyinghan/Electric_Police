@@ -10,8 +10,6 @@ using System.Threading;
 using Microsoft.VisualBasic;
 using System.Text;
 using System.Text.RegularExpressions;
-using MahApps.Metro;
-using MahApps.Metro.Controls;
 using System.Windows.Media;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -24,7 +22,6 @@ using System.Windows.Shapes;
 
 namespace WpfApplicationMD
 {
-
     public class comboDir
     {
         public Dir ID { get; set; }
@@ -62,7 +59,6 @@ public partial class MainWindow//:MetroWindow
             SCip.Text = ips.ToString();
             PLip.Text = ips.ToString();
             tmpEPport = int.Parse(EPport.Text);
-
         }
 
         private void LodData()
@@ -73,7 +69,7 @@ public partial class MainWindow//:MetroWindow
             dirList.Add(new comboDir() { ID = Dir.SL, Name = "直左", Image = "/resource/dir_img/2.png", Desc = "Straight & Left" });
             dirList.Add(new comboDir() { ID = Dir.TS, Name = "直行", Image = "/resource/dir_img/3.png", Desc = "Straight" });
             dirList.Add(new comboDir() { ID = Dir.TR, Name = "右转", Image = "/resource/dir_img/4.png", Desc = "Right" });
-            dirList.Add(new comboDir() { ID = Dir.TS, Name = "直右", Image = "/resource/dir_img/5.png", Desc = "Straight & Right" });
+            dirList.Add(new comboDir() { ID = Dir.SR, Name = "直右", Image = "/resource/dir_img/5.png", Desc = "Straight & Right" });
 
             this.lane1Combox.ItemsSource = dirList;//数据源绑定
             this.lane1Combox.SelectedValue = dirList[0];//默认选择项
@@ -88,26 +84,11 @@ public partial class MainWindow//:MetroWindow
 
     public static int  randomNm(int n,int m)
 {
-    int iSeed = 10;
-    Random ro = new Random(iSeed);
-    long tick = DateTime.Now.Ticks;
-    Random ran = new Random((int)(tick & 0xffffffffL) | (int)(tick >> 32));
+    Random ran = new Random();
 
-    int iResult;
-    int iUp = m;
-    int iDown = n;
-    iResult = ro.Next(iDown, iUp);
-    return iResult;       
-}
-
-        public class Information
-        {
-            public int laneNub;
-            public string direction;
-            public int channelNub;
-            public Information() { }
-
-        };
+    int iResult = ran.Next(n, m);
+    return iResult;
+ }
 
         int intervalTime = 1;
         byte[] ChannelConfig = new Byte[5];
@@ -115,7 +96,7 @@ public partial class MainWindow//:MetroWindow
         int[] dir_C = new int[5];
         int sa;
         int sb;
-        bool randflag = false;
+
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
             //1.校验数据正确性        
@@ -152,7 +133,7 @@ public partial class MainWindow//:MetroWindow
                     sendA.Background = Brushes.White;
                     sendB.Background = Brushes.White;
                     //只在配置的时候随机一次---------可能需要改到组json包处
-                    randflag = true;
+ //                   randflag = true;
                     intervalTime = randomNm(sa, sb);
                     MessageBox.Show("发送间隔随机", intervalTime.ToString());
                 }
@@ -230,7 +211,6 @@ public partial class MainWindow//:MetroWindow
             tmpPLip = IPAddress.Parse(PLip.Text);
             tmpPLport = int.Parse(PLport.Text);
             tmpEPip = EPip.Text;
-
             
             //请求 信号机状态线程
             Thread tx = new Thread(new ThreadStart(ThreadReqStatus));
@@ -255,10 +235,10 @@ public partial class MainWindow//:MetroWindow
         // 接收消息方法
         private void ReceiveMessage()
         {
-//           tmpSCport = 31662;
-//           IPAddress remoteIp = ips;
-           IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpSCip, tmpSCport);
-  //         IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, tmpSCport);
+                       tmpSCport = 31662;
+            //           IPAddress remoteIp = ips;
+            IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpSCip, tmpSCport);
+            //         IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, tmpSCport);
             while (true)
             {
                 try
@@ -278,16 +258,16 @@ public partial class MainWindow//:MetroWindow
                         for (int i = 288; i < 320; i++)
                         {
                             ChannelStatus[i - 288] = receiveBytes[i];
-                            ShowMessageforView(lstbxMessageView, string.Format("{0}:[{1}]_{2}", remoteIpEndPoint,(i-288),ChannelStatus[i-288]));
-                           
+                            ShowMessageforView(lstbxMessageView, string.Format("{0}:[{1}]_{2}", remoteIpEndPoint,(i-288),ChannelStatus[i-288]));                          
                         }
                     }
                }
                catch
               {
-                    MessageBox.Show("异常退出recv");
+                    MessageBox.Show("信号机监听器异常退出");
                     break;
                }
+//                System.Threading.Thread.Sleep(1000);
             }
         }
         // 利用委托回调机制实现界面上消息内容显示
@@ -301,9 +281,11 @@ public partial class MainWindow//:MetroWindow
             }
             else
             {
-                lstbxMessageView.Items.Add(text);
-                lstbxMessageView.SelectedIndex = lstbxMessageView.Items.Count - 1;
-//                lstbxMessageView.ClearSelected();
+//                lstbxMessageView.Items.Add(text);
+  //              lstbxMessageView.SelectedIndex = lstbxMessageView.Items.Count - 1;
+//              lstbxMessageView.ClearSelected();
+                listbox.Items.Add(text);
+                listbox.SelectedIndex = lstbxMessageView.Items.Count - 1;
             }
         }
         // 通过委托回调机制显示消息内容
@@ -319,69 +301,79 @@ public partial class MainWindow//:MetroWindow
             {
                 listbox.Items.Add(text);
                 listbox.SelectedIndex = listbox.Items.Count - 1;
-                //               listbox.ClearSelected();
+//              listbox.ClearSelected();
             }
         }
         Thread sendThread;
 
         public void ThreadReqStatus()
         {
- //           this.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal,(ThreadStart)delegate()
-   //         {
-                //线程action代码...待添加
-       //         MessageBox.Show("我帅不帅?.! send 线程开始", "消息");
-                //匿名模式
-                sendUdpClient = new UdpClient(0);
-                // 实名模式(套接字绑定到本地指定的端口)
-/*                IPAddress localIp = IPAddress.Parse(EPip.Text);
-                IPEndPoint localIpEndPoint = new IPEndPoint(localIp, int.Parse(EPport.Text));
-                sendUdpClient = new UdpClient(localIpEndPoint);
-*/
+                sendUdpClient = new UdpClient();
                 sendThread = new Thread(SendMessage);
                 sendThread.Start();
-     //       });
         }
     Thread sendJsonThread;
         public void ThreadUpJson()
     {
         
-        sendJsonUdpClient = new UdpClient(0);
+        sendJsonUdpClient = new UdpClient();
         sendJsonThread = new Thread(SendJsonMessage);
         sendJsonThread.Start();
 
     }
         string jsonhh;
+        MyCircleQueue<JsonPack> jsonPackQ = new MyCircleQueue<JsonPack>(20);
         public void ThreadPackJsonToQueue()
         {
-            for (int i = 0; i < ChannelConfig.Length;i++ )
+            int sleepMillsSec;
+            while (true)
             {
-                if (ChannelConfig[i] != 0)
+                configInfo config = new configInfo();
+                config.arrivalTime = DateTime.Now.ToLocalTime().ToString("yyyy-MM-dd hh:mm:ss");
+                config.throughTime = DateTime.Now.ToLocalTime().AddSeconds(1).ToString();
+                config.sendTime = DateTime.Now.ToLocalTime().AddSeconds(11).ToString(); for (int i = 0; i < 4; i++)
+
+ //               if (randflag == true)
+ //               {
+                    intervalTime = randomNm(sa, sb);
+ //               }
+                sleepMillsSec = intervalTime * 1000;
+                if (sleepMillsSec <= 0)
                 {
-                    configInfo config = new configInfo();
-                    config.Channel_Cof = ChannelConfig[i].ToString();
-                    config.ipV4_Cof = tmpEPip;
-         //           config.dirFlag = (Dir)Enum.Parse(typeof(Dir), dirConfig[i], false);
-                    config.dirFlag = (Dir)dir_C[i];
-                    config.laneNo_Cof = (i+1).ToString();
-                    JsonPack jsClass = new JsonPack(config);
-                     jsonhh = jsClass.ClassToJson();
-                    ShowMessageforView(lstbxMessageView, jsonhh);
+                    //报错;
                 }
+                for (int k = 0; ChannelConfig[k] != 0 && k < 4; k++)
+                    {
+                        if (ChannelConfig[k] != 0)
+                        {
+                            config.Channel_Cof = ChannelConfig[k].ToString();
+                            config.ipV4_Cof = tmpEPip;
+                            //           config.dirFlag = (Dir)Enum.Parse(typeof(Dir), dirConfig[i], false);
+                            config.dirFlag = (Dir)dir_C[k];
+                            config.laneNo_Cof = (k + 1).ToString();
+                            JsonPack jsClass = new JsonPack(config);
+                            jsonhh = jsClass.ClassToJson();
+                            //                    ShowMessageforView(lstbxMessageView, jsonhh);
+                            jsonPackQ.Push(jsClass);
+                        }
+                    }
+                System.Threading.Thread.Sleep(sleepMillsSec);
 
             }
         }
+      
         Thread receiveThread;
         public void ThreadRcvStatus()
         {
             if(!IsUdpcRecvStart)//未监听的情况,开始监听
             {
                 IPEndPoint localIpep = new IPEndPoint(ips, tmpEPport);
-
                 receiveUpdClient = new UdpClient(localIpep);
                 receiveThread = new Thread(ReceiveMessage);
                 receiveThread.Start();
                 IsUdpcRecvStart = true;
-                MessageBox.Show("recv 监听器已成功启动", "消息");
+                MessageBox.Show("信号机监听器已成功启动", "消息");
+
             }
             else//正在监听的情况,终止监听
             {
@@ -390,85 +382,75 @@ public partial class MainWindow//:MetroWindow
 
                 IsUdpcRecvStart = false;
 
-                MessageBox.Show("UDP监听器已成功启动");
+                MessageBox.Show("信号机监听器已关闭", "消息");
 
             }
 
         }
-
+    
         private void SendJsonMessage(object obj)
         {
-           
+            IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpPLip, tmpPLport);
             DateTime dt = DateTime.Now.ToLocalTime() ;
             String nowTime = dt.ToString("yyyy-MM-dd hh:mm:ss");
             String arrivalTime = dt.AddSeconds(1).ToString();   //加n秒
             String throughTime = dt.AddSeconds(11).ToString();
-//s            string Lane1Json = "\"time\":\"" + nowTime + "ipv4" + tmpEPip + "arrivalStopLineTime" + arrivalTime + "throughStopLineTime" + throughTime;
- //           ShowMessageforView(lstbxMessageView, Lane1Json);
+            string sendjsStr;
+            byte[] sendbytes;
 
-            byte[] sendbytes = System.Text.Encoding.Default.GetBytes(jsonhh);
-
-           IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpPLip, tmpPLport);
-           /*
-MyCircleQueue<JsonPack> jsonPackQ = new MyCircleQueue<JsonPack>(4);
-JsonPack Lane1JP = new JsonPack();
-Lane1JP.time = dt.ToString("yyyy-MM-dd hh:mm:ss");
-Lane1JP.ipV4 = tmpEPip;
-Lane1JP.LaneVehicleDir = "left";//straight,right,unknown
-Lane1JP.arrivalStopLineTime = dt.AddSeconds(1).ToString();  
-Lane1JP.throughStopLineTime = dt.AddSeconds(11).ToString();
-Lane1JP.sendSnapDataTime = Lane1JP.time;
-Lane1JP.laneNo = "1";
-List<JsonPack> JPLane1 = new List<JsonPack>(8);
-foreach (var item in JPLane1)
-{
-item.time = dt.ToString("yyyy-MM-dd hh:mm:ss");
-item.ipV4 = tmpEPip;
-item.LaneVehicleDir = "left";//straight,right,unknown
-item.arrivalStopLineTime = dt.AddSeconds(1).ToString();
-item.throughStopLineTime = dt.AddSeconds(11).ToString();
-item.sendSnapDataTime = item.time;
-item.laneNo = "1";
-}*/
-           /* String jsonString = JsonPack.ClassToJson(JPLane1);
-            JPLane1.Add(Lane1JP);
-
-            jsonPackQ.Push(Lane1JP);
-            jsonPackQ.Push(Lane1JP);
-            jsonPackQ.Push(Lane1JP);
-            jsonPackQ.Push(Lane1JP);
-*/
-
-            int sleepMillsSec;
-            if(randflag == true)
-            {
-                intervalTime = randomNm(sa, sb);                
-            }
-            sleepMillsSec = intervalTime * 1000;
-            if(sleepMillsSec <= 0 )
-            {
-                //报错;
-            }
-
-
+//          String Lane1Json = "\"time\":\"" + nowTime + "ipv4" + tmpEPip + "arrivalStopLineTime" + arrivalTime + "throughStopLineTime" + throughTime;
+//          ShowMessageforView(lstbxMessageView, Lane1Json);
             while (true)
             {
-                System.Threading.Thread.Sleep(sleepMillsSec);
-                sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);
+                if (!jsonPackQ.IsEmpty())
+                {
+                    for (int i = 0; ChannelConfig[i] != 0 && i < 5; i++)
+                    {
+                        JsonPack sendjs = jsonPackQ.FrontItem();
+                        int tmpChannel = int.Parse(sendjs.Channel);
+                        DateTime t1 = Convert.ToDateTime(sendjs.sendSnapDataTime);
+                        DateTime t2 = DateTime.Now.ToLocalTime();
+//                        if (DateTime.Compare(t1, t2) == 0)
+ //                       {
+                            if ((ChannelStatus[tmpChannel-1] == 1) ||( ChannelStatus[tmpChannel-1] == 4))
+                            {
+
+                                sendjsStr = sendjs.ClassToJson();
+                                sendbytes = System.Text.Encoding.Default.GetBytes(sendjsStr);
+                                sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);
+ //                               lstbxMessageView.Items.Clear();
+
+                                ShowMessageforView(lstbxMessageView2, sendjsStr);                          
+             //                   jsonPackQ.Pop();
+                            }
+                            jsonPackQ.Pop();
+                       }
+                  }
+                
+                System.Threading.Thread.Sleep(11000);
             }
         }
+
         // 发送消息方法
         private void SendMessage(object obj)
         {
-            byte[] sendbytes = new byte[]{0x6e,0x6e,0x0,0x0,0x9e,0x0,0x0,0x0};
-
- //        IPEndPoint remoteIpEndPoint = new IPEndPoint(remoteIp, int.Parse(tmpSCport));
-            IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpSCip, 31662);
-          
+           byte[] sendbytes = new byte[]{0x6e,0x6e,0x0,0x0,0x9e,0x0,0x0,0x0};
+           tmpSCport = 31662;
+         IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpSCip, tmpSCport);
+/*
+          String str = "0x6e,0x6e,0x0,0x0,0x9e,0x0,0x0,0x0";
+          String[] str1 = str.Replace(" ", "").Split(',');
+          byte[] b = new byte[str1.Length];
+          for (int i = 0; i < str1.Length; i++)
+          {
+              b[i] = Convert.ToByte(Convert.ToInt32(str1[i], 16));
+          }
+*/
             while (true)
             {
-                System.Threading.Thread.Sleep(5000);
-                sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);             
+                System.Threading.Thread.Sleep(1000);
+                sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);
+ //               sendUdpClient.Send(b, b.Length, remoteIpEndPoint);             
             }
         }
   
@@ -480,18 +462,26 @@ item.laneNo = "1";
             sendUdpClient.Close();
             
           //正在监听的情况,终止监听
-                receiveThread.Abort();//必须先关闭这个线程,否则会异常
-                receiveUpdClient.Close();
-                IsUdpcRecvStart = false;
-                MessageBox.Show("UDP监听器已成功启动");
+            receiveThread.Abort();//必须先关闭这个线程,否则会异常
+            receiveUpdClient.Close();
 
-                randflag = false;
+            sendJsonThread.Abort();
+            sendJsonUdpClient.Close();
+            //tx.Abort();
+            //rx.Abort();
+            //packjson.Abort();
+            //toPL.Abort();
+
+                IsUdpcRecvStart = false;
+                MessageBox.Show("模拟电警已停止");
+
+//                randflag = false;
 
         }
 
         private void btnCommit_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show((this.lane1Combox.SelectedItem as comboDir).ID.ToString());
+//            MessageBox.Show((this.lane1Combox.SelectedItem as comboDir).ID.ToString());
  
             if (this.radiobutton1.IsChecked == true)
             {
@@ -521,7 +511,6 @@ item.laneNo = "1";
                             dir_C[0] = (int)(this.lane1Combox.SelectedItem as comboDir).ID;
                         }
                     }
-
                 }
             }
             else
@@ -557,8 +546,7 @@ item.laneNo = "1";
                                 dirConfig[1] = (this.lane2Combox.SelectedItem as comboDir).ID.ToString();
                                 dir_C[1] = (int)(this.lane2Combox.SelectedItem as comboDir).ID;
                             }
-                        }
-                        
+                        }                       
                     }
                 }
                 else
@@ -596,7 +584,6 @@ item.laneNo = "1";
                                 dir_C[2] = (int)(this.lane3Combox.SelectedItem as comboDir).ID;
                             }
                         }
-
                     }
                 }
                 else
@@ -634,51 +621,13 @@ item.laneNo = "1";
                                 dir_C[3] = (int)(this.lane4Combox.SelectedItem as comboDir).ID;
                             }
                         }
-
                     }
                 }
                 else
                 {
                     MessageBox.Show("选择相对的记录操作14");
                 }
-            }
-            if (grid15.Visibility == Visibility.Visible)
-            {
-                if (this.radiobutton5.IsChecked == true)
-                {
-                    if (string.IsNullOrWhiteSpace(textbox5.Text))
-                    {
-                        MessageBox.Show("不得为空");
-                        textbox5.Background = Brushes.Coral;
-                        textbox5.Focus();
-                    }
-                    else
-                    {
-                        string str = textbox5.Text;
-                        string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
-                        foreach (string i in sArray)
-                        {
-                            if (int.Parse(i.ToString()) > 32)
-                            {
-                                MessageBox.Show("通道号不得大于32");
-                                textbox5.Background = Brushes.Coral;
-                                textbox5.Focus();
-                            }
-                            else
-                            {
-                                textbox5.Background = Brushes.White;
-                                ChannelConfig[4] = Byte.Parse(textbox5.Text);
-                            }
-                        }
-
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("选择相对的记录操作");
-                }
-            } 
-            
+            }           
         }
 
         private void textbox1_TextChanged(object sender, TextChangedEventArgs e)
@@ -706,9 +655,6 @@ item.laneNo = "1";
             { grid13.Visibility = Visibility.Visible; }
             if (p == 4)
             { grid14.Visibility = Visibility.Visible; }
-            if (p == 5)
-            { grid15.Visibility = Visibility.Visible; }
-
 
         }
 
@@ -724,43 +670,27 @@ item.laneNo = "1";
                 grid12.Visibility = Visibility.Hidden;
                 grid13.Visibility = Visibility.Hidden;
                 grid14.Visibility = Visibility.Hidden;
-                grid15.Visibility = Visibility.Hidden;
                 radiobutton2.IsChecked = false;
                 radiobutton3.IsChecked = false;
                 radiobutton4.IsChecked = false;
-                radiobutton5.IsChecked = false;
                 textbox2.Text = null;
                 textbox3.Text = null;
                 textbox4.Text = null;
-                textbox5.Text = null;
-
             }
             if (radiobutton3.IsChecked == true)
             {
                 grid13.Visibility = Visibility.Hidden;
                 grid14.Visibility = Visibility.Hidden;
-                grid15.Visibility = Visibility.Hidden;
                 radiobutton3.IsChecked = false;
                 radiobutton4.IsChecked = false;
-                radiobutton5.IsChecked = false;
                 textbox3.Text = null;
                 textbox4.Text = null;
-                textbox5.Text = null;
             }
             if (radiobutton4.IsChecked == true)
             {
                 grid14.Visibility = Visibility.Hidden;
-                grid15.Visibility = Visibility.Hidden;
                 radiobutton4.IsChecked = false;
-                radiobutton5.IsChecked = false;
                 textbox4.Text = null;
-                textbox5.Text = null;
-            }
-            if (radiobutton5.IsChecked == true)
-            {
-                grid15.Visibility = Visibility.Hidden;
-                radiobutton5.IsChecked = false;
-                textbox5.Text = null;
             }
         }
 
@@ -768,6 +698,8 @@ item.laneNo = "1";
         {
             lstbxMessageView.Items.Clear();
         }
+
+
 
     }
 }
