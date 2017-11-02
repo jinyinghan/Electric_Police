@@ -1,3 +1,6 @@
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\WpfApplicationMD.exe.config
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\WpfApplicationMD.exe
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\WpfApplicationMD.pdb
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\MainWindow.baml
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\App.baml
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\MainWindow.g.cs
@@ -6,9 +9,6 @@ C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfAp
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\WpfApplicationMD.g.resources
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\WpfApplicationMD.Properties.Resources.resources
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\WpfApplicationMD.csproj.GenerateResource.Cache
-C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\WpfApplicationMD.exe.config
-C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\WpfApplicationMD.exe
-C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Debug\WpfApplicationMD.pdb
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\WpfApplicationMD.exe
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\WpfApplicationMD.pdb
-C:\Users\hanjinying\Documents\Visual Studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\WpfApplicationMD.csprojResolveAssemblyReference.cache
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Debug\WpfApplicationMD.csprojResolveAssemblyReference.cache

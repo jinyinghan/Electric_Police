@@ -18,6 +18,9 @@ namespace WpfApplicationMD
         public String throughTime;
         public String sendTime;
     };
+
+
+
     class JsonPack
     {
         public String time ;/*= DateTime.Now.ToLocalTime().AddSeconds(11).ToString();*/
@@ -85,7 +88,8 @@ namespace WpfApplicationMD
             sb.Append("{");
             if (this != null)
             {
-                    sb.AppendFormat("\"time\":\"{0}\",\"ipV4\":\"{1}\",", this.time, this.ipV4);
+ //                   sb.AppendFormat("\"time\":\"{0}\",\"ipV4\":\"{1}\",", this.time, this.ipV4);
+                    sb.Append("\"time\":\"" + this.time + ":696Z\",\"ipV4\":\"" + this.ipV4 + "\",");
                     sb.Append("\"ipV6\":\"::\",\"port\":7200,\"macAddress\":\"54:C4:15:45:43:3A\",\"channel\":1,\"Target\":");
                     sb.Append("[");
                         sb.Append("{");
@@ -100,9 +104,9 @@ namespace WpfApplicationMD
                         sb.Append("{\"description\":\"LaneVehicleDir\",\"value\":\"" + this.LaneVehicleDir + "\"},");
 //                      sb.AppendFormat("{\"description\":\"LaneVehicleDir\",\"value\":\"{0}\"},", this.LaneVehicleDir);
                         sb.Append("{\"description\":\"vehicle_category\",\"value\":\"vehicle\"},");
-                        sb.Append("{\"description\":\"arrivalStopLineTime\",\"value\":\"" + this.arrivalStopLineTime + "\"},");
-                        sb.Append("{\"description\":\"throughStopLineTime\",\"value\":\"" + this.throughStopLineTime + "\"},");
-                        sb.Append("{\"description\":\"sendSnapDataTime\",\"value\":\"" + this.sendSnapDataTime + "\"},");
+                        sb.Append("{\"description\":\"arrivalStopLineTime\",\"value\":\"" + this.arrivalStopLineTime + ":335Z\"},");
+                        sb.Append("{\"description\":\"throughStopLineTime\",\"value\":\"" + this.throughStopLineTime + ":435Z\"},");
+                        sb.Append("{\"description\":\"sendSnapDataTime\",\"value\":\"" + this.sendSnapDataTime + ":696Z\"},");
 
          //               sb.AppendFormat("{\"description\":\"arrivalStopLineTime\",\"value\":\"{0}\"},", this.arrivalStopLineTime);
          //               sb.AppendFormat("{\"description\":\"throughStopLineTime\",\"value\":\"{0}\"},", this.throughStopLineTime);
@@ -110,36 +114,17 @@ namespace WpfApplicationMD
                         sb.Append("{\"description\":\"monitorInfo\",\"value\":\"\"},");
                         sb.Append("{\"description\":\"laneNo\",\"value\":\"" + this.laneNo + "\"}");
        //                 sb.AppendFormat("{\"description\":\"laneNo\",\"value\":\"{0}\"}", this.laneNo);
-                    sb.Append("]}}");
-                    sb.Append("]");
+                    sb.Append("]}}]");
+//                    sb.Append("]");
 
-                if (sb.Length > 1)
-                    sb.Remove(sb.Length - 1, 1);
+ //               if (sb.Length > 1)
+ //                   sb.Remove(sb.Length - 1, 1);
 
             }
             sb.Append("}");
             sb.Replace("\\","");
-            return sb.ToString();
-
-            /*
-                       string sb = "{\"time\":\"";
-                       sb += this.time;
-                       sb += ",\"ipV4\":\"";
-                       sb += this.ipV4;
-                       sb += "\"ipV6\":\"::\",\"port\":7200,\"macAddress\":\"54:C4:15:45:43:3A\",\"channel\":1,\"Target\":[{\"recognitionType\":\"vehicle\",\"TargetInfo\":{\"recognition\":\"plate\",\"Region\":\"[]\",\"Property\":[{\"description\":\"plate\",\"value\":\"蓝浙CA0186\"},{\"description\":\"confidence\",\"value\":80},{\"description\":\"characterConfidence\",\"value\":\"71 95 79 99 73 88 54\"}]}},{\"recognitionType\":\"vehicle\",\"TargetInfo\":{\"recognition\":\"vehicle\",\"Region\":\"[]\",\"Property\":[{\"description\":\"LaneVehicleDir\",\"value\":\"";
-                       sb += this.LaneVehicleDir;
-                       sb += "\"},{\"description\":\"vehicle_category\",\"value\":\"vehicle\"},{\"description\":\"arrivalStopLineTime\",\"value\":\"";
-                       sb += this.arrivalStopLineTime;
-                       sb += "\"},{\"description\":\"throughStopLineTime\",\"value\":\"";
-                       sb += this.throughStopLineTime;
-                       sb += "\"},{\"description\":\"sendSnapDataTime\",\"value\":\"";
-                       sb += this.sendSnapDataTime;
-                       sb += "\"},{\"description\":\"monitorInfo\",\"value\":\"\"},{\"description\":\"laneNo\",\"value\":\"";
-                       sb += this.laneNo;
-                       sb += "\"}]}}]}";
-                       return sb;
-             */
-
+            string ha = sb.ToString();
+           return ha;
         }
     }
     
