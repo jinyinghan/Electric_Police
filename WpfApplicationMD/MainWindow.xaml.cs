@@ -38,17 +38,12 @@ public enum Direction { 左转直行,左转,直行,右转,右转直行 };
 public partial class MainWindow//:MetroWindow 
     {
         private UdpClient sendJsonUdpClient;
-
-        private UdpClient sendUdpClient;
-    
-        private UdpClient receiveUpdClient;
-              
+        private UdpClient sendUdpClient;            
         public IPAddress tmpSCip;
         public String tmpSCipSTR;
         public String tmpEPip;
         public int tmpSCport;
-        public int tmpEPport;
-
+        public String tmpEPport;
         public IPAddress tmpPLip;
         public int tmpPLport;
         public Stopwatch stopwatch;
@@ -64,7 +59,7 @@ public partial class MainWindow//:MetroWindow
             EPip.Text = ips.ToString();
 //            SCip.Text = ips.ToString();
  /*           PLip.Text = ips.ToString();*/
-            tmpEPport = int.Parse(EPport.Text);
+//            tmpEPport = EPport.Text;
             tmpPLip = ips;
             tmpPLport = 21338;
         }
@@ -195,43 +190,21 @@ public partial class MainWindow//:MetroWindow
             {
                 SCip.Background = Brushes.White;
             }
-            /*
-            if (string.IsNullOrWhiteSpace(PLip.Text))
-            {
-                MessageBox.Show("必须填入平台IP");
-                PLip.Background = Brushes.Coral;
-            }
-            else
-            {
-                PLip.Background = Brushes.White;
-            }
-            if (string.IsNullOrWhiteSpace(PLport.Text))
-            {
-                MessageBox.Show("必须填入平台port");
-                PLport.Background = Brushes.Coral;
-            }
-            else
-            {
-                PLport.Background = Brushes.White;
-            }
-            */
+
             //ip正确性校验,port校验
             /***************************************************************/
+//            commit_bt.IsEnabled = false;
+//            add_bt.IsEnabled = false;
+//            delete_bt.IsEnabled = false;
             tmpSCip = IPAddress.Parse(SCip.Text);
             tmpSCipSTR = SCip.Text;
             tmpSCport = int.Parse(SCport.Text);
-            /*
-            tmpPLip = IPAddress.Parse(PLip.Text);
-            tmpPLport = int.Parse(PLport.Text);
-            */
+            tmpEPport = EPport.Text;
             tmpEPip = EPip.Text;
             
             //请求 信号机状态线程
              tx = new Thread(new ThreadStart(ThreadReqStatus));
             tx.Start();
-            //接收 信号机状态线程
- //           Thread rx = new Thread(new ThreadStart(ThreadRcvStatus));
- //           rx.Start();
 
             //组包 线程
              packjson = new Thread(new ThreadStart(ThreadPackJsonToQueue));
@@ -239,13 +212,14 @@ public partial class MainWindow//:MetroWindow
 
             //发送 json给平台线程
 //            Thread toPL = new Thread(new ThreadStart(ThreadUpJson));
- //           toPL.Start();
+//            toPL.Start();
 
             //Tcp发送 json给信号机线程
              toSC = new Thread(new ThreadStart(ThreadTCP));
-           toSC.Start();
+             toSC.Start();
             stopwatch = new Stopwatch();
            stopwatch.Start();
+
 
         }
 
@@ -253,50 +227,6 @@ public partial class MainWindow//:MetroWindow
 
         byte[] ChannelStatus = new Byte[32];
 
-        // 接收消息方法
-        private void ReceiveMessage()
-        {
-  /*                     tmpSCport = 31662;
-            //           IPAddress remoteIp = ips;
-            IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpSCip, tmpSCport);
-            //         IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, tmpSCport);
-   * IPEndPoint remoteIPEndPoint = new IPEndPoint(IPAddress.Any, 0);
-    */
-            IPEndPoint remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            while (true)
-            {
-                try
-               {
-                    // 关闭receiveUdpClient时此时会产生异常
-                    byte[] receiveBytes = receiveUpdClient.Receive(ref remoteIpEndPoint);
-
-                    // 显示消息内容
-                     if(receiveBytes.Length < 320)
-                    {
-                        for(int i = 0;i<receiveBytes.Length;i++)
-                        {
-                            ShowMessageforView(lstbxMessageView, string.Format("{0}[0x{1:X2}]:{2}", remoteIpEndPoint, receiveBytes[i], i));
-
-                        }   
-                    }
-                    else 
-                    {
-                        for (int i = 288; i < 320; i++)
-                        {
-                            ChannelStatus[i - 288] = receiveBytes[i];
-                            ShowMessageforView(lstbxMessageView, string.Format("{0}:[{1}]_{2}", remoteIpEndPoint,(i-288),ChannelStatus[i-288]));
-                           
-                        }
-                    }
-               }
-               catch (Exception se)
-                {
-                    MessageBox.Show("信号机监听器异常退出"+se.Message + " Conn......." + Environment.NewLine);
-                    break;
-               }
-//                System.Threading.Thread.Sleep(1000);
-            }
-        }
         // 利用委托回调机制实现界面上消息内容显示
         delegate void ShowMessageforViewCallBack(ListBox listbox, string text);
         private void ShowMessageforView(ListBox listbox, string text)
@@ -308,9 +238,6 @@ public partial class MainWindow//:MetroWindow
             }
             else
             {
-//                lstbxMessageView.Items.Add(text);
-  //              lstbxMessageView.SelectedIndex = lstbxMessageView.Items.Count - 1;
-//              lstbxMessageView.ClearSelected();
                 listbox.Items.Add(text);
                 listbox.SelectedIndex = lstbxMessageView.Items.Count - 1;
             }
@@ -401,7 +328,7 @@ public partial class MainWindow//:MetroWindow
 
 //                    MessageBox.Show("尝试数据上传到信号机: " + tmpSCipSTR);
 
-                    tcpClient.BeginConnect(tmpSCip, tmpEPport,
+                    tcpClient.BeginConnect(tmpSCip, 7200,
                         new AsyncCallback(ConnectCallback), tcpClient);
 
                     connectDone.WaitOne();
@@ -434,14 +361,8 @@ public partial class MainWindow//:MetroWindow
             {
                 Connect();
             }
- //           tcpClient = new TcpClient();
             string sendjsStr;
             byte[] sendbytes;
-
-//            tcpClient.Connect(tmpSCip, tmpSCport);
-//            if (tcpClient.Connected)
-//            {
-//                ns = tcpClient.GetStream();
                 while (true)
                 {
                     if (!jsonPackQ.IsEmpty())
@@ -523,6 +444,7 @@ public partial class MainWindow//:MetroWindow
                         {
                             config.Channel_Cof = ChannelConfig[k].ToString();
                             config.ipV4_Cof = tmpEPip;
+                            config.port_Cof = tmpEPport;
                             //           config.dirFlag = (Dir)Enum.Parse(typeof(Dir), dirConfig[i], false);
                             config.dirFlag = (Dir)dir_C[k];
                             config.laneNo_Cof = (k + 1).ToString();
@@ -537,33 +459,7 @@ public partial class MainWindow//:MetroWindow
             }
         }
       
-        Thread receiveThread;
-        public void ThreadRcvStatus()
-        {
-            if(!IsUdpcRecvStart)//未监听的情况,开始监听
-            {
-                IPEndPoint localIpep = new IPEndPoint(ips, tmpEPport); // 本机IP和监听端口号  
-                receiveUpdClient = new UdpClient(localIpep);
-                receiveThread = new Thread(ReceiveMessage);
-                receiveThread.Start();
-                  
 
-                IsUdpcRecvStart = true;
-                MessageBox.Show("信号机监听器已成功启动", "消息");
-
-            }
-            else//正在监听的情况,终止监听
-            {
-                receiveThread.Abort();//必须先关闭这个线程,否则会异常
-                receiveUpdClient.Close();
-
-                IsUdpcRecvStart = false;
-
-                MessageBox.Show("信号机监听器已关闭", "消息");
-
-            }
-
-        }
     
         private void SendJsonMessage(object obj)
         {
@@ -614,11 +510,12 @@ public partial class MainWindow//:MetroWindow
 
             while (true)
             {
+                try
+                {
                 System.Threading.Thread.Sleep(3000);
                 sendUdpClient.Send(sendbytesQ, sendbytesQ.Length, remoteIpEndPoint);
  //               sendUdpClient.Send(sendbytes, sendbytes.Length, "AlternateHostMachineName", 11000);
-                try
-                {
+
                     // 关闭receiveUdpClient时此时会产生异常
                     byte[] receiveBytes = sendUdpClient.Receive(ref remoteIpEndPoint);
 
@@ -643,7 +540,7 @@ public partial class MainWindow//:MetroWindow
                 }
                 catch (Exception se)
                 {
-                    MessageBox.Show(se.Message + " Conn......." + Environment.NewLine);
+//                    MessageBox.Show(se.Message + " Conn......." + Environment.NewLine);
                     sendUdpClient.Close();
                     sendUdpClient = new UdpClient();
 //                    break;
@@ -659,12 +556,6 @@ public partial class MainWindow//:MetroWindow
             { sendThread.Abort(); }
             if (sendUdpClient != null)
             { sendUdpClient.Close(); }
-            
-          //正在监听的情况,终止监听
-            if (receiveThread != null)
-            { receiveThread.Abort(); }//必须先关闭这个线程,否则会异常}
-            if (receiveUpdClient != null)
-            { receiveUpdClient.Close(); }
             if (sendJsonThread != null)
             { sendJsonThread.Abort(); }
             if (sendJsonThread != null)
@@ -677,9 +568,9 @@ public partial class MainWindow//:MetroWindow
                 DisConnect();
                 stopwatch.Stop();
 //                ShowMessageforView(lstbxMessageView, string.Format("[ ^^^^^^^^^^^ 本次运行时间: {1} ^^^^^^^^^^^ ]", stopwatch.Elapsed.TotalMinutes));
-                MessageBox.Show("[ ^^^^^^^^^^^ 本次运行时间: " + stopwatch.Elapsed.TotalMinutes + " ^^^^^^^^^^^ ]");
-                
+                MessageBox.Show("[本次运行时间: " + stopwatch.Elapsed.TotalMinutes + "mins]");                
             }
+           
 
             try
             {
@@ -695,6 +586,7 @@ public partial class MainWindow//:MetroWindow
 
                 IsUdpcRecvStart = false;
                 MessageBox.Show("模拟电警已停止");
+                Start.IsEnabled = false;
 
         }
 
@@ -728,6 +620,7 @@ public partial class MainWindow//:MetroWindow
                             ChannelConfig[0] = Byte.Parse(textbox1.Text);
                             dirConfig[0] = (this.lane1Combox.SelectedItem as comboDir).ID.ToString();
                             dir_C[0] = (int)(this.lane1Combox.SelectedItem as comboDir).ID;
+                            Start.IsEnabled = true;
                         }
                     }
                 }
@@ -764,13 +657,14 @@ public partial class MainWindow//:MetroWindow
                                 ChannelConfig[1] = Byte.Parse(textbox2.Text);
                                 dirConfig[1] = (this.lane2Combox.SelectedItem as comboDir).ID.ToString();
                                 dir_C[1] = (int)(this.lane2Combox.SelectedItem as comboDir).ID;
+                                Start.IsEnabled = true;
                             }
                         }                       
                     }
                 }
                 else
                 {
-                    MessageBox.Show("选择相对的记录操作");
+//                    MessageBox.Show("选择相对的记录操作");
                 }
             }
             if (grid13.Visibility == Visibility.Visible)
@@ -801,13 +695,14 @@ public partial class MainWindow//:MetroWindow
                                 ChannelConfig[2] = Byte.Parse(textbox3.Text);
                                 dirConfig[2] = (this.lane3Combox.SelectedItem as comboDir).ID.ToString();
                                 dir_C[2] = (int)(this.lane3Combox.SelectedItem as comboDir).ID;
+                                Start.IsEnabled = true;
                             }
                         }
                     }
                 }
                 else
                 {
-                    MessageBox.Show("选择相对的记录操作13");
+//                    MessageBox.Show("选择相对的记录操作13");
                 }
             }
             if (grid14.Visibility == Visibility.Visible)
@@ -838,13 +733,14 @@ public partial class MainWindow//:MetroWindow
                                 ChannelConfig[3] = Byte.Parse(textbox4.Text);
                                 dirConfig[3] = (this.lane4Combox.SelectedItem as comboDir).ID.ToString();
                                 dir_C[3] = (int)(this.lane4Combox.SelectedItem as comboDir).ID;
+                                Start.IsEnabled = true;
                             }
                         }
                     }
                 }
                 else
                 {
-                    MessageBox.Show("选择相对的记录操作14");
+//                    MessageBox.Show("选择相对的记录操作14");
                 }
             }           
         }
@@ -911,6 +807,7 @@ public partial class MainWindow//:MetroWindow
                 radiobutton4.IsChecked = false;
                 textbox3.Text = null;
                 textbox4.Text = null;
+
             }
             if (radiobutton4.IsChecked == true)
             {
@@ -918,6 +815,9 @@ public partial class MainWindow//:MetroWindow
                 radiobutton4.IsChecked = false;
                 textbox4.Text = null;
             }
+            Array.Clear(ChannelConfig, 0, ChannelConfig.Length);
+            Array.Clear(dirConfig, 0, dirConfig.Length);
+            Array.Clear(dir_C, 0, dir_C.Length);
         }
 
         private void btnClear_Click(object sender, RoutedEventArgs e)

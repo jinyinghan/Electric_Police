@@ -1,0 +1,13 @@
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Release\WpfApplicationMD.exe.config
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Release\WpfApplicationMD.exe
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\bin\Release\WpfApplicationMD.pdb
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\MainWindow.baml
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\App.baml
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\MainWindow.g.cs
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\App.g.cs
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD_MarkupCompile.cache
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD.g.resources
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD.Properties.Resources.resources
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD.csproj.GenerateResource.Cache
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD.exe
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD.pdb

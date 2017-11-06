@@ -8,7 +8,6 @@
             <ColumnDefinition Width="286*"/>
             <ColumnDefinition Width="176*"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Row="0" Grid.Column="2" Background="Orange" Margin="0.2,0,-0.2,-0.2" />
         <Label Content="电警" HorizontalAlignment="Left" Margin="51,41,0,0" VerticalAlignment="Top"/>
         <TextBox Name="EPip"  HorizontalAlignment="Left" Height="23" Margin="141,43,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"  >
             <TextBox.Style>
@@ -59,16 +58,16 @@
         </TextBox>
         <Label Content="IP" HorizontalAlignment="Left" Margin="177,10,0,0" VerticalAlignment="Top"/>
         <Label Content="Port" HorizontalAlignment="Left" Height="26" Margin="308,10,0,0" VerticalAlignment="Top" Width="60"/>
-        <TextBlock Name="EPport" HorizontalAlignment="Left" Margin="308,41,0,0" TextWrapping="Wrap" Text="7200" VerticalAlignment="Top" Height="25" Width="98"/>
+        <TextBox Name="EPport" HorizontalAlignment="Left" Margin="308,41,0,0" TextWrapping="Wrap" Text="7200" VerticalAlignment="Top" Height="25" Width="98"/>
         <TextBlock Name="SCport" HorizontalAlignment="Left" Margin="308,82,0,0" TextWrapping="Wrap" Text="20000" VerticalAlignment="Top" Height="25" Width="98"/>
-        <Button Content="开始" HorizontalAlignment="Left" Margin="532,606,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
+        <Button Content="开始" Name="Start" HorizontalAlignment="Left" Margin="532,606,0,0" VerticalAlignment="Top" Width="75" IsEnabled="False" Click="btnStart_Click"/>
         <Button Content="停止" HorizontalAlignment="Left" Margin="175.8,607,0,0" VerticalAlignment="Top" Width="75" Click="btnStop_Click" Grid.Column="1"/>
         <Grid HorizontalAlignment="Left" Height="244" Margin="484,15,0,0" VerticalAlignment="Top" Width="431" Name="grid1" Grid.ColumnSpan="2">
 
 
-            <Button Content="提交" HorizontalAlignment="Left" Margin="115,261,0,0" VerticalAlignment="Top" Width="75" Click="btnCommit_Click"/>
-            <Button Content="增加" HorizontalAlignment="Left" Margin="344,261,0,0" VerticalAlignment="Top" Width="69" Click="btnAddd_Click"/>
-            <Button Content="删除" HorizontalAlignment="Left" Margin="232,262,0,0" VerticalAlignment="Top" Width="75" Click="btnDelete_Click"/>
+            <Button Content="提交" Name ="commit_bt" IsEnabled ="True"  HorizontalAlignment="Left" Margin="115,261,0,0" VerticalAlignment="Top" Width="75" Click="btnCommit_Click"/>
+            <Button Content="增加" Name ="add_bt" IsEnabled ="True" HorizontalAlignment="Left" Margin="344,261,0,0" VerticalAlignment="Top" Width="69" Click="btnAddd_Click"/>
+            <Button Content="删除" Name ="delete_bt" IsEnabled ="True" HorizontalAlignment="Left" Margin="232,262,0,0" VerticalAlignment="Top" Width="75" Click="btnDelete_Click"/>
             <Label Content="信号机状态信息: " HorizontalAlignment="Left" Margin="49,0,0,0" VerticalAlignment="Top" Width="110"/>
 
 

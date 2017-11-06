@@ -12,8 +12,8 @@ namespace WpfApplicationMD
         public String ipV4_Cof;
         public Dir dirFlag;
         public String laneNo_Cof;
+        public String port_Cof;
         public String Channel_Cof;
-
         public String arrivalTime;
         public String throughTime;
         public String sendTime;
@@ -30,6 +30,7 @@ namespace WpfApplicationMD
         public String throughStopLineTime ;/*= DateTime.Now.ToLocalTime().AddSeconds(1).ToString(); */
         public String sendSnapDataTime ;/* = DateTime.Now.ToLocalTime().AddSeconds(11).ToString(); */
         public String laneNo;
+        public String port;
         public String Channel;
 
         public JsonPack() { }
@@ -40,7 +41,8 @@ namespace WpfApplicationMD
             sendSnapDataTime = conLane.sendTime;
             time = sendSnapDataTime;
             laneNo = conLane.laneNo_Cof;
-            Channel = conLane.Channel_Cof;
+            Channel = conLane.Channel_Cof; 
+            port = conLane.port_Cof;
             ipV4 = conLane.ipV4_Cof;
             switch (conLane.dirFlag)
             {
@@ -90,7 +92,7 @@ namespace WpfApplicationMD
             {
  //                   sb.AppendFormat("\"time\":\"{0}\",\"ipV4\":\"{1}\",", this.time, this.ipV4);
                     sb.Append("\"time\":\"" + this.time + ":696Z\",\"ipV4\":\"" + this.ipV4 + "\",");
-                    sb.Append("\"ipV6\":\"::\",\"port\":7200,\"macAddress\":\"54:C4:15:45:43:3A\",\"channel\":1,\"Target\":");
+                    sb.Append("\"ipV6\":\"::\",\"port\":"+this.port+",\"macAddress\":\"54:C4:15:45:43:3A\",\"channel\":1,\"Target\":");
                     sb.Append("[");
                         sb.Append("{");
                             sb.Append("\"recognitionType\":\"vehicle\",\"TargetInfo\":{\"recognition\":\"plate\",\"Region\":\"[]\",");
