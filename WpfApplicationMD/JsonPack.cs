@@ -114,7 +114,7 @@ namespace WpfApplicationMD
          //               sb.AppendFormat("{\"description\":\"throughStopLineTime\",\"value\":\"{0}\"},", this.throughStopLineTime);
         //                sb.AppendFormat("{\"description\":\"sendSnapDataTime\",\"value\":\"{0}\"},", this.sendSnapDataTime);
                         sb.Append("{\"description\":\"monitorInfo\",\"value\":\"\"},");
-                        sb.Append("{\"description\":\"laneNo\",\"value\":\"" + this.laneNo + "\"}");
+                        sb.Append("{\"description\":\"laneNo\",\"value\":" + this.laneNo + "}");
        //                 sb.AppendFormat("{\"description\":\"laneNo\",\"value\":\"{0}\"}", this.laneNo);
                     sb.Append("]}}]");
 //                    sb.Append("]");

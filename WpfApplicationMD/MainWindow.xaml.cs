@@ -111,7 +111,9 @@ public partial class MainWindow//:MetroWindow
 
             if ((string.IsNullOrWhiteSpace(sendA.Text)) && (string.IsNullOrWhiteSpace(sendB.Text)))
             {
-                MessageBox.Show("发送间隔时间不得为空");
+//                MessageBox.Show("发送间隔时间不得为空");
+                ShowMessageforView(lstbxMessageView2, "发送间隔时间不得为空");
+
                 sendA.Background = Brushes.Coral;
                 sendB.Background = Brushes.Coral;
                 sendA.Focus();
@@ -122,14 +124,17 @@ public partial class MainWindow//:MetroWindow
                 sb = int.Parse(sendB.Text);
                 if(( sa <= 0 )|| ( sb >= 10))
                 {
-                    MessageBox.Show("请输入(0,10) 大于 0 小于 10 的值!");
+ //                   MessageBox.Show("请输入(0,10) 大于 0 小于 10 的值!");
+                    ShowMessageforView(lstbxMessageView2, "请输入(0,10) 大于 0 小于 10 的值!");
+
                     sendA.Background = Brushes.Coral;
                     sendB.Background = Brushes.Coral;
                     sendA.Focus();
                 }
                 else if(sb <= sa)
                 {
-                    MessageBox.Show("请确保第一个值小于第二个值");
+    //                MessageBox.Show("请确保第一个值小于第二个值");
+                    ShowMessageforView(lstbxMessageView2, "请确保第一个值小于第二个值");
                     sendA.Background = Brushes.White;
                     sendB.Background = Brushes.Coral;
                     sendB.Focus();
@@ -152,7 +157,8 @@ public partial class MainWindow//:MetroWindow
                     intervalTime = int.Parse(sendB.Text);
                     sendA.Background = Brushes.White;
                     sendB.Background = Brushes.LightBlue;
-                    MessageBox.Show("发送间隔不随机", intervalTime.ToString());
+ //                   MessageBox.Show("发送间隔不随机", intervalTime.ToString());
+                    ShowMessageforView(lstbxMessageView2, "发送间隔不随机" + intervalTime.ToString());
                 }
             }
             if ((!string.IsNullOrWhiteSpace(sendA.Text)) && (string.IsNullOrWhiteSpace(sendB.Text)))
@@ -163,7 +169,9 @@ public partial class MainWindow//:MetroWindow
                     intervalTime = int.Parse(sendA.Text);
                     sendA.Background = Brushes.LightBlue;
                     sendB.Background = Brushes.White;
-                    MessageBox.Show("发送间隔不随机", intervalTime.ToString());
+   //                 MessageBox.Show("发送间隔不随机", intervalTime.ToString());
+                    ShowMessageforView(lstbxMessageView2, "发送间隔不随机" + intervalTime.ToString());
+
                 }
             }
             //发送间隔 0<a<b<10s
@@ -173,7 +181,8 @@ public partial class MainWindow//:MetroWindow
             //ip正确性校验,port校验
             if (string.IsNullOrWhiteSpace(EPip.Text))
             {
-                MessageBox.Show("必须填入电警IP");
+   //             MessageBox.Show("必须填入电警IP");
+                ShowMessageforView(lstbxMessageView2, "必须填入电警IP");
                 EPip.Background = Brushes.Coral;
             }
             else
@@ -183,7 +192,8 @@ public partial class MainWindow//:MetroWindow
 
             if (string.IsNullOrWhiteSpace(SCip.Text))
             {
-                 MessageBox.Show("必须填入信号机IP");
+   //              MessageBox.Show("必须填入信号机IP");
+                 ShowMessageforView(lstbxMessageView2, "必须填入信号机IP");
                  SCip.Background = Brushes.Coral;
             }
             else
@@ -266,7 +276,7 @@ public partial class MainWindow//:MetroWindow
                 sendThread = new Thread(SendMessage);
                 sendThread.Start();
         }
-    Thread sendJsonThread;
+ /*   Thread sendJsonThread;
         public void ThreadUpJson()
     {
         
@@ -275,6 +285,7 @@ public partial class MainWindow//:MetroWindow
         sendJsonThread.Start();
 
     }
+  * */
         private void ConnectCallback(IAsyncResult ar)
         {
             connectDone.Set();
@@ -283,13 +294,15 @@ public partial class MainWindow//:MetroWindow
             {
                 if (t.Connected)
                 {
-                    MessageBox.Show("信号机连接成功");
+   //                 MessageBox.Show("信号机连接成功");
+                    ShowMessageforView(lstbxMessageView2, "信号机连接成功");
                     t.EndConnect(ar);
 //                    MessageBox.Show("连接线程完成");
                 }
                 else
                 {
-                    MessageBox.Show("信号机连接失败");
+   //                 MessageBox.Show("信号机连接失败");
+                    ShowMessageforView(lstbxMessageView2, "信号机连接失败");
                     t.EndConnect(ar);
                 }
 
@@ -297,7 +310,8 @@ public partial class MainWindow//:MetroWindow
             catch //(SocketException se)
             {
  //               MessageBox.Show("连接发生错误ConnCallBack.......:" + se.Message);
-                MessageBox.Show("信号机不支持电警数据转发功能", "警告");
+//                MessageBox.Show("信号机不支持电警数据转发功能", "警告");
+                ShowMessageforView(lstbxMessageView2, "信号机不支持电警数据转发功能");
             }
         }
         private void DisConnect()
@@ -344,12 +358,19 @@ public partial class MainWindow//:MetroWindow
                 }
                 catch (Exception se)
                 {
-                    MessageBox.Show(se.Message + " Conn......." + Environment.NewLine);
+ //                   MessageBox.Show(se.Message + " Conn......." + Environment.NewLine);
+                    ShowMessageforView(lstbxMessageView2, se.Message + " Conn......." + Environment.NewLine);
                 }
             }
         }
         TcpClient tcpClient = null;
         NetworkStream ns = null;
+    static string nowT = DateTime.Now.ToLocalTime().ToString("HH_mm_ss");
+        static string filename = "C:/jsonlog"+ nowT +".txt";
+    System.IO.StreamWriter sw = new System.IO.StreamWriter(filename);
+       
+                               
+                                
         public ManualResetEvent connectDone = new ManualResetEvent(false);
     public void ThreadTCP()
         {
@@ -363,11 +384,12 @@ public partial class MainWindow//:MetroWindow
             }
             string sendjsStr;
             byte[] sendbytes;
+            System.Threading.Thread.Sleep(11000);
                 while (true)
                 {
                     if (!jsonPackQ.IsEmpty())
                     {
-                        for (int i = 0; ChannelConfig[i] != 0 && i < 5; i++)
+                        for (int i = 0; ChannelConfig[i] != 0 && i < 4; i++)
                         {
                             JsonPack sendjs = jsonPackQ.FrontItem();
                             int tmpChannel = int.Parse(sendjs.Channel);
@@ -396,32 +418,40 @@ public partial class MainWindow//:MetroWindow
                                 {
                                     if ((ns.CanWrite)&&(ns !=null))
                                     {
-                                       ns.Write(data3, 0, data3.Length);
+                                      ns.Write(data3, 0, data3.Length);
                                       ShowMessageforView(lstbxMessageView2, sendjsStr);
+//                                      string str = System.Text.Encoding.Default.GetString(data3);
+//                                      ShowMessageforView(lstbxMessageView2, str);
+                                      sw.Write(sendjsStr);
+                                      sw.Write("\r\n");
                                      }
                                      else
                                     {
-                                         MessageBox.Show("不能写入数据流", "终止");
-                                      }
+                                        ShowMessageforView(lstbxMessageView2, "不能写入数据流,请重启信号机");
+ //                                        MessageBox.Show("不能写入数据流", "终止");
+                                    }
                                  }
                                  catch (Exception se)
                                  {
  //                                       MessageBox.Show(se.Message + Environment.NewLine);
  //                                    MessageBox.Show("信号机不支持电警数据转发功能","警告");
+                                     ShowMessageforView(lstbxMessageView2, "信号机不支持电警数据转发功能");
+
                                   }
                                    
                             }
                             jsonPackQ.Pop();
                           }                           
-                        }                  
-                    System.Threading.Thread.Sleep(11000);
+                        }
+                    System.Threading.Thread.Sleep(sleepMillsSec);
                 }
         }
         string jsonhh;
-        MyCircleQueue<JsonPack> jsonPackQ = new MyCircleQueue<JsonPack>(20);
+        int sleepMillsSec;
+        MyCircleQueue<JsonPack> jsonPackQ = new MyCircleQueue<JsonPack>(25);
         public void ThreadPackJsonToQueue()
         {
-            int sleepMillsSec;
+
             while (true)
             {
                 configInfo config = new configInfo();
@@ -460,7 +490,7 @@ public partial class MainWindow//:MetroWindow
         }
       
 
-    
+ /*   
         private void SendJsonMessage(object obj)
         {
 
@@ -490,17 +520,18 @@ public partial class MainWindow//:MetroWindow
                               sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);
  //                               lstbxMessageView.Items.Clear();
 
-                                ShowMessageforView(lstbxMessageView2, sendjsStr);                          
+                                ShowMessageforView(lstbxMessageView2, sendjsStr);
+
              //                   jsonPackQ.Pop();
                             }
                             jsonPackQ.Pop();
                        }
                   }
                 
-                System.Threading.Thread.Sleep(11000);
+//                System.Threading.Thread.Sleep(11000);
             }
         }
-
+*/
         // 发送消息方法
         private void SendMessage(object obj)
         {
@@ -512,7 +543,7 @@ public partial class MainWindow//:MetroWindow
             {
                 try
                 {
-                System.Threading.Thread.Sleep(3000);
+                System.Threading.Thread.Sleep(1000);
                 sendUdpClient.Send(sendbytesQ, sendbytesQ.Length, remoteIpEndPoint);
  //               sendUdpClient.Send(sendbytes, sendbytes.Length, "AlternateHostMachineName", 11000);
 
@@ -543,6 +574,7 @@ public partial class MainWindow//:MetroWindow
 //                    MessageBox.Show(se.Message + " Conn......." + Environment.NewLine);
                     sendUdpClient.Close();
                     sendUdpClient = new UdpClient();
+                    ShowMessageforView(lstbxMessageView2, "已自动重连信号机");
 //                    break;
                 }
             }
@@ -556,10 +588,8 @@ public partial class MainWindow//:MetroWindow
             { sendThread.Abort(); }
             if (sendUdpClient != null)
             { sendUdpClient.Close(); }
-            if (sendJsonThread != null)
-            { sendJsonThread.Abort(); }
-            if (sendJsonThread != null)
-            { sendJsonThread.Abort(); }
+//            if (sendJsonThread != null)
+//            { sendJsonThread.Abort(); }
             if (sendJsonUdpClient != null)
             { sendJsonUdpClient.Close(); }
             if ((tcpClient != null) && (tcpClient.Connected))
@@ -568,7 +598,8 @@ public partial class MainWindow//:MetroWindow
                 DisConnect();
                 stopwatch.Stop();
 //                ShowMessageforView(lstbxMessageView, string.Format("[ ^^^^^^^^^^^ 本次运行时间: {1} ^^^^^^^^^^^ ]", stopwatch.Elapsed.TotalMinutes));
-                MessageBox.Show("[本次运行时间: " + stopwatch.Elapsed.TotalMinutes + "mins]");                
+//                MessageBox.Show("[本次运行时间: " + stopwatch.Elapsed.TotalMinutes + "mins]");
+                ShowMessageforView(lstbxMessageView2, "[本次运行时间: " + stopwatch.Elapsed.TotalMinutes + "mins]");
             }
            
 
@@ -580,12 +611,15 @@ public partial class MainWindow//:MetroWindow
             }
             catch (Exception se)
             {
-                MessageBox.Show(se.Message+ Environment.NewLine);
+//                MessageBox.Show(se.Message+ Environment.NewLine);
+                ShowMessageforView(lstbxMessageView2, se.Message + Environment.NewLine);
             }
 
 
                 IsUdpcRecvStart = false;
-                MessageBox.Show("模拟电警已停止");
+//               MessageBox.Show("模拟电警已停止");
+                ShowMessageforView(lstbxMessageView2, "模拟电警已停止");
+
                 Start.IsEnabled = false;
 
         }
@@ -598,7 +632,8 @@ public partial class MainWindow//:MetroWindow
             {
                 if (string.IsNullOrWhiteSpace(textbox1.Text))
                 {
-                    MessageBox.Show("不得为空");
+   //                 MessageBox.Show("不得为空");
+                    ShowMessageforView(lstbxMessageView2, "不得为空");
                     textbox1.Background = Brushes.Coral;
                     textbox1.Focus();
                 }
@@ -610,7 +645,8 @@ public partial class MainWindow//:MetroWindow
                     {
                         if (int.Parse(i.ToString()) > 32)
                         {
-                            MessageBox.Show("通道号不得大于32");
+  //                          MessageBox.Show("通道号不得大于32");
+                            ShowMessageforView(lstbxMessageView2, "通道号不得大于32"); 
                             textbox1.Background = Brushes.Coral;
                             textbox1.Focus();
                         }
@@ -627,7 +663,8 @@ public partial class MainWindow//:MetroWindow
             }
             else
             {
-                MessageBox.Show("选择相对的记录操作");
+  //              MessageBox.Show("选择相对的记录操作");
+                ShowMessageforView(lstbxMessageView2, "选择相对的记录操作"); 
             }
             if (grid12.Visibility == Visibility.Visible)
             {
@@ -635,7 +672,8 @@ public partial class MainWindow//:MetroWindow
                 {
                     if (string.IsNullOrWhiteSpace(textbox2.Text))
                     {
-                        MessageBox.Show("不得为空");
+                      //  MessageBox.Show("不得为空");
+                        ShowMessageforView(lstbxMessageView2, "不得为空"); 
                         textbox2.Background = Brushes.Coral;
                         textbox2.Focus();
                     }
@@ -647,7 +685,8 @@ public partial class MainWindow//:MetroWindow
                         {
                             if (int.Parse(i.ToString()) > 32)
                             {
-                                MessageBox.Show("通道号不得大于32");
+                      //          MessageBox.Show("通道号不得大于32");
+                                ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
                                 textbox2.Background = Brushes.Coral;
                                 textbox2.Focus();
                             }
@@ -673,7 +712,8 @@ public partial class MainWindow//:MetroWindow
                 {
                     if (string.IsNullOrWhiteSpace(textbox3.Text))
                     {
-                        MessageBox.Show("不得为空");
+          //              MessageBox.Show("不得为空");
+                        ShowMessageforView(lstbxMessageView2, "不得为空");
                         textbox3.Background = Brushes.Coral;
                         textbox3.Focus();
                     }
@@ -685,7 +725,8 @@ public partial class MainWindow//:MetroWindow
                         {
                             if (int.Parse(i.ToString()) > 32)
                             {
-                                MessageBox.Show("通道号不得大于32");
+          //                      MessageBox.Show("通道号不得大于32");
+                                ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
                                 textbox3.Background = Brushes.Coral;
                                 textbox3.Focus();
                             }
@@ -711,7 +752,8 @@ public partial class MainWindow//:MetroWindow
                 {
                     if (string.IsNullOrWhiteSpace(textbox4.Text))
                     {
-                        MessageBox.Show("不得为空");
+                 //       MessageBox.Show("不得为空");
+                        ShowMessageforView(lstbxMessageView2, "不得为空");
                         textbox4.Background = Brushes.Coral;
                         textbox4.Focus();
                     }
@@ -723,7 +765,8 @@ public partial class MainWindow//:MetroWindow
                         {
                             if (int.Parse(i.ToString()) > 32)
                             {
-                                MessageBox.Show("通道号不得大于32");
+          //                      MessageBox.Show("通道号不得大于32");
+                                ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
                                 textbox4.Background = Brushes.Coral;
                                 textbox4.Focus();
                             }
@@ -749,7 +792,8 @@ public partial class MainWindow//:MetroWindow
         {
             if (string.IsNullOrWhiteSpace(textbox1.Text))
             {
-                MessageBox.Show("不得为空");
+      //          MessageBox.Show("不得为空");
+                ShowMessageforView(lstbxMessageView2, "不得为空");
                 textbox1.Focus();
             }
         }
@@ -784,7 +828,8 @@ public partial class MainWindow//:MetroWindow
         {
               if(radiobutton1.IsChecked == true)
               {
-                  MessageBox.Show("至少配置1项");
+   //               MessageBox.Show("至少配置1项");
+                  ShowMessageforView(lstbxMessageView2, "至少配置1项");
 
               }
             if(radiobutton2.IsChecked == true)
@@ -847,7 +892,9 @@ public partial class MainWindow//:MetroWindow
                 { Clipboard.SetText(CopyText); }
                 catch (Exception se)
                 {
-                    MessageBox.Show(se.Message  + Environment.NewLine);
+                    //MessageBox.Show(se.Message  + Environment.NewLine);
+                    ShowMessageforView(lstbxMessageView2, se.Message + Environment.NewLine);
+
                 }
 
             }

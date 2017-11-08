@@ -11,3 +11,4 @@ C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfAp
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD.csproj.GenerateResource.Cache
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD.exe
 C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD.pdb
+C:\Users\hanjinying\documents\visual studio 2013\Projects\WpfApplicationMD\WpfApplicationMD\obj\Release\WpfApplicationMD.csprojResolveAssemblyReference.cache
