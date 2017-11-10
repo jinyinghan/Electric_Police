@@ -47,37 +47,37 @@ namespace WpfApplicationMD
             switch (conLane.dirFlag)
             {
                 case Dir.TL:
-                    LaneVehicleDir = "Left";
+                    LaneVehicleDir = "left";
                     break;
 
                 case Dir.SL:
                     if (MainWindow.randomNm(0, 2) == 0)
                     {
-                        LaneVehicleDir = "Straight";
+                        LaneVehicleDir = "straight";
                     }
                     else
                     {
-                        LaneVehicleDir = "Left";
+                        LaneVehicleDir = "left";
                     }
                     break;
 
                 case Dir.TS:
-                    LaneVehicleDir = "Straight";
+                    LaneVehicleDir = "straight";
                     break;
 
                 case Dir.TR:
-                    LaneVehicleDir = "Right";
+                    LaneVehicleDir = "right";
                     break;
 
                 case Dir.SR:
 
                     if (MainWindow.randomNm(0, 2) == 0)
                     {
-                        LaneVehicleDir = "Straight";
+                        LaneVehicleDir = "straight";
                     }
                     else
                     {
-                        LaneVehicleDir = "Right";
+                        LaneVehicleDir = "right";
                     }
                     break;
             }
@@ -96,7 +96,7 @@ namespace WpfApplicationMD
                     sb.Append("[");
                         sb.Append("{");
                             sb.Append("\"recognitionType\":\"vehicle\",\"TargetInfo\":{\"recognition\":\"plate\",\"Region\":\"[]\",");
-                            sb.Append("\"Property\":[{\"description\":\"plate\",\"value\":\"蓝浙CA0186\"},");
+                            sb.Append("\"Property\":[{\"description\":\"plate\",\"value\":\"蓝浙C31258\"},");
                             sb.Append("{\"description\":\"confidence\",\"value\":80},");
                             sb.Append("{\"description\":\"characterConfidence\",\"value\":\"71 95 79 99 73 88 54\"}]}");
                         sb.Append("},");

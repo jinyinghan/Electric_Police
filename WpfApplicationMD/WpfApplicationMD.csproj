@@ -80,12 +80,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="JsonPack.cs" />
-    <Compile Include="UserControl_IPv4TextBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControl_IPv4TextBox.Designer.cs">
-      <DependentUpon>UserControl_IPv4TextBox.cs</DependentUpon>
-    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

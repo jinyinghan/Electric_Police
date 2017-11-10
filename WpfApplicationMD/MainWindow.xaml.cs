@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
+using System.Xml;
 
 
 
@@ -37,15 +38,12 @@ namespace WpfApplicationMD
 public enum Direction { 左转直行,左转,直行,右转,右转直行 };
 public partial class MainWindow//:MetroWindow 
     {
-        private UdpClient sendJsonUdpClient;
         private UdpClient sendUdpClient;            
         public IPAddress tmpSCip;
         public String tmpSCipSTR;
         public String tmpEPip;
         public int tmpSCport;
         public String tmpEPport;
-        public IPAddress tmpPLip;
-        public int tmpPLport;
         public Stopwatch stopwatch;
 
         IPAddress ips = Dns.GetHostAddresses(Dns.GetHostName()).Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).First();
@@ -56,13 +54,109 @@ public partial class MainWindow//:MetroWindow
             LodData();
             String must = "10.21.48.135";
             SCip.Text = must;
-            EPip.Text = ips.ToString();
-//            SCip.Text = ips.ToString();
- /*           PLip.Text = ips.ToString();*/
-//            tmpEPport = EPport.Text;
-            tmpPLip = ips;
-            tmpPLport = 21338;
+ //           EPip.Text = ips.ToString();
+            //            SCip.Text = ips.ToString();
+            /*           PLip.Text = ips.ToString();*/
+            //            tmpEPport = EPport.Text;
+
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.Load("EPConfig.xml");
+                XmlNode SCxn = xmlDoc.SelectSingleNode("SC");
+                XmlElement SCxe = (XmlElement)SCxn;
+                ShowMessageforView(lstbxMessageView2, "SC Config: " + SCxe.GetAttribute("ip") + ": 20000");
+                XmlNodeList xnl = SCxn.ChildNodes;
+                SCip.Text = SCxe.GetAttribute("ip");
+
+                foreach (XmlNode xnf in xnl)
+                {
+//                    XmlElement xe = (XmlElement)xnf;
+                    XmlElement xe = xnf as XmlElement;//最好不好用强制转换，建议使用as，这样如果转不过去话，就是null，不会报异常
+                    if (xe != null)   //这样判断以下是否为null，或者你可以if（xe==null） return ；直接返回或做其他处理
+                    {
+                        ShowMessageforView(lstbxMessageView2, "EP Config: " + xe.GetAttribute("ip") + ": " + xe.GetAttribute("port"));//显示属性值
+                        ShowMessageforView(lstbxMessageView2, "Interval Time: " + xe.GetAttribute("t_min") + "~ " + xe.GetAttribute("t_max") + "s");
+                        EPip.Text = xe.GetAttribute("ip");
+                        EPport.Text = xe.GetAttribute("port");
+                        sendA.Text = xe.GetAttribute("t_min");
+                        sendB.Text = xe.GetAttribute("t_max");
+
+
+                        XmlNodeList xnf1 = xe.ChildNodes;
+                        int i = 0;
+                        foreach (XmlNode xn2 in xnf1)
+                        {
+//                            XmlElement xla = (XmlElement)xn2;
+                            XmlElement xla = xn2 as XmlElement;//最好不好用强制转换，建议使用as，这样如果转不过去话，就是null，不会报异常
+                            if (xla != null)
+                            {
+                                ShowMessageforView(lstbxMessageView2, "Lan numb: [ " + xla.GetAttribute("id") + " ],Dir: [ " + xla.GetAttribute("dir") + " ],BindChannel: [ " + xla.GetAttribute("channel") + " ]");//显示属性值
+                                //          Console.WriteLine(xn2.InnerText);//显示子节点点文本
+                                ChannelConfig[i] = Byte.Parse(xla.GetAttribute("channel"));
+                                dirConfig[i] = xla.GetAttribute("dir");
+                                i++;
+                            }
+                            else
+                            {
+ //                               xmlflag = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+ //                       xmlflag = false;
+                    }
+                }
+                xmlflag = true;
+//                    CommitBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                    grid12.Visibility = Visibility.Visible;
+                    grid13.Visibility = Visibility.Visible;
+                    grid14.Visibility = Visibility.Visible;
+                    if (ChannelConfig[0] != 0)
+                    {
+                        this.radiobutton1.IsChecked = true;
+                        textbox1.Text = ChannelConfig[0].ToString();
+                    }
+                    if (ChannelConfig[1] != 0)
+                    {
+                        this.radiobutton2.IsChecked = true;
+                        textbox2.Text = ChannelConfig[1].ToString();
+                    }
+                    if (ChannelConfig[2] != 0)
+                    {
+                        this.radiobutton3.IsChecked = true;
+                        textbox3.Text = ChannelConfig[2].ToString();
+                    }
+                    if (ChannelConfig[3] != 0)
+                    {
+                        this.radiobutton4.IsChecked = true;
+                        textbox4.Text = ChannelConfig[3].ToString();
+                    }
+
+
+                    if (SCxe.GetAttribute("winShow") == "0")
+                    {
+                        this.Visibility = Visibility.Hidden;
+                    }
+
+                        Start.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+
+                        if (SCxe.GetAttribute("logShow") == "1")
+                        {
+                            Showlog.IsEnabled = false;
+                            Showlog.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                       }
+             }  
+                
+            catch (Exception se)
+            {
+                //                   MessageBox.Show(se.Message + " Conn......." + Environment.NewLine);
+                ShowMessageforView(lstbxMessageView2, "XML配置失败请手动添加"+se.Message + Environment.NewLine);
+                xmlflag = false;
+            }
         }
+        bool xmlflag = false;
 
         private void LodData()
         {
@@ -77,11 +171,11 @@ public partial class MainWindow//:MetroWindow
             this.lane1Combox.ItemsSource = dirList;//数据源绑定
             this.lane1Combox.SelectedValue = dirList[0];//默认选择项
             this.lane2Combox.ItemsSource = dirList;//数据源绑定
-            this.lane2Combox.SelectedValue = dirList[1];//默认选择项
+            this.lane2Combox.SelectedValue = dirList[2];//默认选择项
             this.lane3Combox.ItemsSource = dirList;//数据源绑定
-            this.lane3Combox.SelectedValue = dirList[2];//默认选择项
+            this.lane3Combox.SelectedValue = dirList[3];//默认选择项
             this.lane4Combox.ItemsSource = dirList;//数据源绑定
-            this.lane4Combox.SelectedValue = dirList[3];//默认选择项
+            this.lane4Combox.SelectedValue = dirList[1];//默认选择项
         }
 
 
@@ -276,16 +370,7 @@ public partial class MainWindow//:MetroWindow
                 sendThread = new Thread(SendMessage);
                 sendThread.Start();
         }
- /*   Thread sendJsonThread;
-        public void ThreadUpJson()
-    {
-        
-        sendJsonUdpClient = new UdpClient();
-        sendJsonThread = new Thread(SendJsonMessage);
-        sendJsonThread.Start();
 
-    }
-  * */
         private void ConnectCallback(IAsyncResult ar)
         {
             connectDone.Set();
@@ -365,26 +450,30 @@ public partial class MainWindow//:MetroWindow
         }
         TcpClient tcpClient = null;
         NetworkStream ns = null;
-    static string nowT = DateTime.Now.ToLocalTime().ToString("HH_mm_ss");
-        static string filename = "C:/jsonlog"+ nowT +".txt";
-    System.IO.StreamWriter sw = new System.IO.StreamWriter(filename);
+
+        System.IO.StreamWriter sw;
+    
        
                                
                                 
         public ManualResetEvent connectDone = new ManualResetEvent(false);
     public void ThreadTCP()
         {
-            if ((tcpClient != null) && (tcpClient.Connected))
+            try
             {
-                DisConnect();
-            }
-            else
-            {
-                Connect();
-            }
-            string sendjsStr;
-            byte[] sendbytes;
-            System.Threading.Thread.Sleep(11000);
+                if ((tcpClient != null) && (tcpClient.Connected))
+                {
+                    DisConnect();
+                }
+                else
+                {
+                    Connect();
+                }
+                string sendjsStr;
+                byte[] sendbytes;
+
+
+                System.Threading.Thread.Sleep(8000);
                 while (true)
                 {
                     if (!jsonPackQ.IsEmpty())
@@ -416,67 +505,78 @@ public partial class MainWindow//:MetroWindow
 
                                 try
                                 {
-                                    if ((ns.CanWrite)&&(ns !=null))
+                                    if ((ns.CanWrite) && (ns != null))
                                     {
-                                      ns.Write(data3, 0, data3.Length);
-                                      ShowMessageforView(lstbxMessageView2, sendjsStr);
-//                                      string str = System.Text.Encoding.Default.GetString(data3);
-//                                      ShowMessageforView(lstbxMessageView2, str);
-                                      sw.Write(sendjsStr);
-                                      sw.Write("\r\n");
-                                     }
-                                     else
+                                        ns.Write(data3, 0, data3.Length);
+                                        ShowMessageforView(lstbxMessageView2, sendjsStr);
+                                        //                                      string str = System.Text.Encoding.Default.GetString(data3);
+                                        //                                      ShowMessageforView(lstbxMessageView2, str);
+                                        if (sw != null)
+                                        {
+
+                                            sw.Write(sendjsStr);
+                                            sw.Write("\r\n");
+                                        }
+
+                                    }
+                                    else
                                     {
                                         ShowMessageforView(lstbxMessageView2, "不能写入数据流,请重启信号机");
- //                                        MessageBox.Show("不能写入数据流", "终止");
+                                        //                                        MessageBox.Show("不能写入数据流", "终止");
                                     }
-                                 }
-                                 catch (Exception se)
-                                 {
- //                                       MessageBox.Show(se.Message + Environment.NewLine);
- //                                    MessageBox.Show("信号机不支持电警数据转发功能","警告");
-                                     ShowMessageforView(lstbxMessageView2, "信号机不支持电警数据转发功能");
+                                }
+                                catch (Exception se)
+                                {
+                                    //                                       MessageBox.Show(se.Message + Environment.NewLine);
+                                    //                                    MessageBox.Show("信号机不支持电警数据转发功能","警告");
+                                    ShowMessageforView(lstbxMessageView2, "信号机不支持电警数据转发功能" + se.Message + Environment.NewLine);
 
-                                  }
-                                   
+                                }
+
                             }
                             jsonPackQ.Pop();
-                          }                           
                         }
+                    }
                     System.Threading.Thread.Sleep(sleepMillsSec);
                 }
+            }
+            catch (Exception se)
+            {
+ //               MessageBox.Show( se.Message + Environment.NewLine);
+            }
         }
         string jsonhh;
         int sleepMillsSec;
         MyCircleQueue<JsonPack> jsonPackQ = new MyCircleQueue<JsonPack>(25);
         public void ThreadPackJsonToQueue()
         {
-
-            while (true)
+            try
             {
-                configInfo config = new configInfo();
-                config.arrivalTime = DateTime.Now.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss");
-                config.throughTime = DateTime.Now.ToLocalTime().AddSeconds(1).ToString("yyyy-MM-ddTHH:mm:ss");
-                config.sendTime = DateTime.Now.ToLocalTime().AddSeconds(11).ToString("yyyy-MM-ddTHH:mm:ss"); 
-
- //               if (randflag == true)
- //               {
-                    intervalTime = randomNm(sa, sb);
- //               }
-                sleepMillsSec = intervalTime * 1000;
-                if (sleepMillsSec <= 0)
+                while (true)
                 {
-                    //报错;
-                }
-                for (int k = 0; ChannelConfig[k] != 0 && k < 4; k++)
+                    configInfo config = new configInfo();
+                    config.arrivalTime = DateTime.Now.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss");
+                    config.throughTime = DateTime.Now.ToLocalTime().AddSeconds(1).ToString("yyyy-MM-ddTHH:mm:ss");
+                    config.sendTime = DateTime.Now.ToLocalTime().AddSeconds(11).ToString("yyyy-MM-ddTHH:mm:ss");
+
+                    //               if (randflag == true)
+                    //               {
+                    intervalTime = randomNm(sa, sb);
+                    //               }
+                    sleepMillsSec = intervalTime * 1000;
+                    if (sleepMillsSec <= 0)
+                    {
+                        //报错;
+                    }
+                    for (int k = 0; ChannelConfig[k] != 0 && k < 4; k++)
                     {
                         if (ChannelConfig[k] != 0)
                         {
                             config.Channel_Cof = ChannelConfig[k].ToString();
                             config.ipV4_Cof = tmpEPip;
                             config.port_Cof = tmpEPport;
-                            //           config.dirFlag = (Dir)Enum.Parse(typeof(Dir), dirConfig[i], false);
-                            config.dirFlag = (Dir)dir_C[k];
+                            config.dirFlag = (Dir)Enum.Parse(typeof(Dir), dirConfig[k], false);
+                            //config.dirFlag = (Dir)dir_C[k];
                             config.laneNo_Cof = (k + 1).ToString();
                             JsonPack jsClass = new JsonPack(config);
                             jsonhh = jsClass.ClassToJson();
@@ -484,54 +584,16 @@ public partial class MainWindow//:MetroWindow
                             jsonPackQ.Push(jsClass);
                         }
                     }
-                System.Threading.Thread.Sleep(sleepMillsSec);
+                    System.Threading.Thread.Sleep(sleepMillsSec);
 
+                }
+            }
+            catch (Exception se)
+            {
+//                MessageBox.Show(se.Message + Environment.NewLine);
             }
         }
       
-
- /*   
-        private void SendJsonMessage(object obj)
-        {
-
-            IPEndPoint remoteIpEndPoint = new IPEndPoint(tmpPLip, tmpPLport);
-            string sendjsStr;
-            byte[] sendbytes;
-
-//          String Lane1Json = "\"time\":\"" + nowTime + "ipv4" + tmpEPip + "arrivalStopLineTime" + arrivalTime + "throughStopLineTime" + throughTime;
-//          ShowMessageforView(lstbxMessageView, Lane1Json);
-            while (true)
-            {
-                if (!jsonPackQ.IsEmpty())
-                {
-                    for (int i = 0; ChannelConfig[i] != 0 && i < 5; i++)
-                    {
-                        JsonPack sendjs = jsonPackQ.FrontItem();
-                        int tmpChannel = int.Parse(sendjs.Channel);
-                        DateTime t1 = Convert.ToDateTime(sendjs.sendSnapDataTime);
-                        DateTime t2 = DateTime.Now.ToLocalTime();
-//                        if (DateTime.Compare(t1, t2) == 0)
- //                       {
-                            if ((ChannelStatus[tmpChannel-1] == 1) ||( ChannelStatus[tmpChannel-1] == 4))
-                            {
-
-                                sendjsStr = sendjs.ClassToJson();
-                                sendbytes = System.Text.Encoding.Default.GetBytes(sendjsStr);
-                              sendUdpClient.Send(sendbytes, sendbytes.Length, remoteIpEndPoint);
- //                               lstbxMessageView.Items.Clear();
-
-                                ShowMessageforView(lstbxMessageView2, sendjsStr);
-
-             //                   jsonPackQ.Pop();
-                            }
-                            jsonPackQ.Pop();
-                       }
-                  }
-                
-//                System.Threading.Thread.Sleep(11000);
-            }
-        }
-*/
         // 发送消息方法
         private void SendMessage(object obj)
         {
@@ -588,10 +650,6 @@ public partial class MainWindow//:MetroWindow
             { sendThread.Abort(); }
             if (sendUdpClient != null)
             { sendUdpClient.Close(); }
-//            if (sendJsonThread != null)
-//            { sendJsonThread.Abort(); }
-            if (sendJsonUdpClient != null)
-            { sendJsonUdpClient.Close(); }
             if ((tcpClient != null) && (tcpClient.Connected))
             {
                 tcpClient = null;
@@ -614,178 +672,221 @@ public partial class MainWindow//:MetroWindow
 //                MessageBox.Show(se.Message+ Environment.NewLine);
                 ShowMessageforView(lstbxMessageView2, se.Message + Environment.NewLine);
             }
-
+            if (sw != null)
+            {
+                sw = null;
+            }
 
                 IsUdpcRecvStart = false;
 //               MessageBox.Show("模拟电警已停止");
                 ShowMessageforView(lstbxMessageView2, "模拟电警已停止");
 
                 Start.IsEnabled = false;
+              
+                Showlog.IsEnabled=true;
 
         }
 
         private void btnCommit_Click(object sender, RoutedEventArgs e)
         {
 //            MessageBox.Show((this.lane1Combox.SelectedItem as comboDir).ID.ToString());
- 
-            if (this.radiobutton1.IsChecked == true)
+            if (xmlflag == false)
             {
-                if (string.IsNullOrWhiteSpace(textbox1.Text))
+                if (this.radiobutton1.IsChecked == true)
                 {
-   //                 MessageBox.Show("不得为空");
-                    ShowMessageforView(lstbxMessageView2, "不得为空");
-                    textbox1.Background = Brushes.Coral;
-                    textbox1.Focus();
+                    if (string.IsNullOrWhiteSpace(textbox1.Text))
+                    {
+                        //                 MessageBox.Show("不得为空");
+                        ShowMessageforView(lstbxMessageView2, "不得为空");
+                        textbox1.Background = Brushes.Coral;
+                        textbox1.Focus();
+                    }
+                    else
+                    {
+                        string str = textbox1.Text;
+                        string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
+                        foreach (string i in sArray)
+                        {
+                            if (int.Parse(i.ToString()) > 32)
+                            {
+                                //                          MessageBox.Show("通道号不得大于32");
+                                ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
+                                textbox1.Background = Brushes.Coral;
+                                textbox1.Focus();
+                            }
+                            else
+                            {
+                                textbox1.Background = Brushes.White;
+                                ChannelConfig[0] = Byte.Parse(textbox1.Text);
+                                dirConfig[0] = (this.lane1Combox.SelectedItem as comboDir).ID.ToString();
+                                dir_C[0] = (int)(this.lane1Combox.SelectedItem as comboDir).ID;
+                                Start.IsEnabled = true;
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    string str = textbox1.Text;
-                    string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
-                    foreach (string i in sArray)
+                    //              MessageBox.Show("选择相对的记录操作");
+                    ShowMessageforView(lstbxMessageView2, "选择相对的记录操作");
+                }
+                if (grid12.Visibility == Visibility.Visible)
+                {
+                    if (this.radiobutton2.IsChecked == true)
                     {
-                        if (int.Parse(i.ToString()) > 32)
+                        if (string.IsNullOrWhiteSpace(textbox2.Text))
                         {
-  //                          MessageBox.Show("通道号不得大于32");
-                            ShowMessageforView(lstbxMessageView2, "通道号不得大于32"); 
-                            textbox1.Background = Brushes.Coral;
-                            textbox1.Focus();
+                            //  MessageBox.Show("不得为空");
+                            ShowMessageforView(lstbxMessageView2, "不得为空");
+                            textbox2.Background = Brushes.Coral;
+                            textbox2.Focus();
                         }
                         else
                         {
-                            textbox1.Background = Brushes.White;
-                            ChannelConfig[0] = Byte.Parse(textbox1.Text);
-                            dirConfig[0] = (this.lane1Combox.SelectedItem as comboDir).ID.ToString();
-                            dir_C[0] = (int)(this.lane1Combox.SelectedItem as comboDir).ID;
-                            Start.IsEnabled = true;
+                            string str = textbox2.Text;
+                            string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
+                            foreach (string i in sArray)
+                            {
+                                if (int.Parse(i.ToString()) > 32)
+                                {
+                                    //          MessageBox.Show("通道号不得大于32");
+                                    ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
+                                    textbox2.Background = Brushes.Coral;
+                                    textbox2.Focus();
+                                }
+                                else
+                                {
+                                    textbox2.Background = Brushes.White;
+                                    ChannelConfig[1] = Byte.Parse(textbox2.Text);
+                                    dirConfig[1] = (this.lane2Combox.SelectedItem as comboDir).ID.ToString();
+                                    dir_C[1] = (int)(this.lane2Combox.SelectedItem as comboDir).ID;
+                                    Start.IsEnabled = true;
+                                }
+                            }
                         }
+                    }
+                    else
+                    {
+                        //                    MessageBox.Show("选择相对的记录操作");
+                    }
+                }
+                if (grid13.Visibility == Visibility.Visible)
+                {
+                    if (this.radiobutton3.IsChecked == true)
+                    {
+                        if (string.IsNullOrWhiteSpace(textbox3.Text))
+                        {
+                            //              MessageBox.Show("不得为空");
+                            ShowMessageforView(lstbxMessageView2, "不得为空");
+                            textbox3.Background = Brushes.Coral;
+                            textbox3.Focus();
+                        }
+                        else
+                        {
+                            string str = textbox3.Text;
+                            string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
+                            foreach (string i in sArray)
+                            {
+                                if (int.Parse(i.ToString()) > 32)
+                                {
+                                    //                      MessageBox.Show("通道号不得大于32");
+                                    ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
+                                    textbox3.Background = Brushes.Coral;
+                                    textbox3.Focus();
+                                }
+                                else
+                                {
+                                    textbox3.Background = Brushes.White;
+                                    ChannelConfig[2] = Byte.Parse(textbox3.Text);
+                                    dirConfig[2] = (this.lane3Combox.SelectedItem as comboDir).ID.ToString();
+                                    dir_C[2] = (int)(this.lane3Combox.SelectedItem as comboDir).ID;
+                                    Start.IsEnabled = true;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //                    MessageBox.Show("选择相对的记录操作13");
+                    }
+                }
+                if (grid14.Visibility == Visibility.Visible)
+                {
+                    if (this.radiobutton4.IsChecked == true)
+                    {
+                        if (string.IsNullOrWhiteSpace(textbox4.Text))
+                        {
+                            //       MessageBox.Show("不得为空");
+                            ShowMessageforView(lstbxMessageView2, "不得为空");
+                            textbox4.Background = Brushes.Coral;
+                            textbox4.Focus();
+                        }
+                        else
+                        {
+                            string str = textbox4.Text;
+                            string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
+                            foreach (string i in sArray)
+                            {
+                                if (int.Parse(i.ToString()) > 32)
+                                {
+                                    //                      MessageBox.Show("通道号不得大于32");
+                                    ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
+                                    textbox4.Background = Brushes.Coral;
+                                    textbox4.Focus();
+                                }
+                                else
+                                {
+                                    textbox4.Background = Brushes.White;
+                                    ChannelConfig[3] = Byte.Parse(textbox4.Text);
+                                    dirConfig[3] = (this.lane4Combox.SelectedItem as comboDir).ID.ToString();
+                                    dir_C[3] = (int)(this.lane4Combox.SelectedItem as comboDir).ID;
+                                    Start.IsEnabled = true;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //                    MessageBox.Show("选择相对的记录操作14");
                     }
                 }
             }
             else
             {
-  //              MessageBox.Show("选择相对的记录操作");
-                ShowMessageforView(lstbxMessageView2, "选择相对的记录操作"); 
+                grid12.Visibility = Visibility.Visible;
+                grid13.Visibility = Visibility.Visible;
+                grid14.Visibility = Visibility.Visible;
+                if(ChannelConfig[0]!=0)
+                {
+                    this.radiobutton1.IsChecked = true;
+                    textbox1.Text = ChannelConfig[0].ToString();
+                }
+                if (ChannelConfig[1] != 0)
+                {
+                    this.radiobutton2.IsChecked = true;
+                    textbox2.Text = ChannelConfig[1].ToString();
+                }
+                if (ChannelConfig[2] != 0)
+                {
+                    this.radiobutton3.IsChecked = true;
+                    textbox3.Text = ChannelConfig[2].ToString();
+                }
+                if (ChannelConfig[3] != 0)
+                {
+                    this.radiobutton4.IsChecked = true;
+                    textbox4.Text = ChannelConfig[3].ToString();
+                }
+                for (int i = 0; i < 4;i++ )
+                {
+                    if (ChannelConfig[i]!=0)
+                    {
+                        Start.IsEnabled = true;
+
+                    }
+                }
+           
+
             }
-            if (grid12.Visibility == Visibility.Visible)
-            {
-                if (this.radiobutton2.IsChecked == true)
-                {
-                    if (string.IsNullOrWhiteSpace(textbox2.Text))
-                    {
-                      //  MessageBox.Show("不得为空");
-                        ShowMessageforView(lstbxMessageView2, "不得为空"); 
-                        textbox2.Background = Brushes.Coral;
-                        textbox2.Focus();
-                    }
-                    else
-                    {
-                        string str = textbox2.Text;
-                        string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
-                        foreach (string i in sArray)
-                        {
-                            if (int.Parse(i.ToString()) > 32)
-                            {
-                      //          MessageBox.Show("通道号不得大于32");
-                                ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
-                                textbox2.Background = Brushes.Coral;
-                                textbox2.Focus();
-                            }
-                            else
-                            {
-                                textbox2.Background = Brushes.White;
-                                ChannelConfig[1] = Byte.Parse(textbox2.Text);
-                                dirConfig[1] = (this.lane2Combox.SelectedItem as comboDir).ID.ToString();
-                                dir_C[1] = (int)(this.lane2Combox.SelectedItem as comboDir).ID;
-                                Start.IsEnabled = true;
-                            }
-                        }                       
-                    }
-                }
-                else
-                {
-//                    MessageBox.Show("选择相对的记录操作");
-                }
-            }
-            if (grid13.Visibility == Visibility.Visible)
-            {
-                if (this.radiobutton3.IsChecked == true)
-                {
-                    if (string.IsNullOrWhiteSpace(textbox3.Text))
-                    {
-          //              MessageBox.Show("不得为空");
-                        ShowMessageforView(lstbxMessageView2, "不得为空");
-                        textbox3.Background = Brushes.Coral;
-                        textbox3.Focus();
-                    }
-                    else
-                    {
-                        string str = textbox3.Text;
-                        string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
-                        foreach (string i in sArray)
-                        {
-                            if (int.Parse(i.ToString()) > 32)
-                            {
-          //                      MessageBox.Show("通道号不得大于32");
-                                ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
-                                textbox3.Background = Brushes.Coral;
-                                textbox3.Focus();
-                            }
-                            else
-                            {
-                                textbox3.Background = Brushes.White;
-                                ChannelConfig[2] = Byte.Parse(textbox3.Text);
-                                dirConfig[2] = (this.lane3Combox.SelectedItem as comboDir).ID.ToString();
-                                dir_C[2] = (int)(this.lane3Combox.SelectedItem as comboDir).ID;
-                                Start.IsEnabled = true;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-//                    MessageBox.Show("选择相对的记录操作13");
-                }
-            }
-            if (grid14.Visibility == Visibility.Visible)
-            {
-                if (this.radiobutton4.IsChecked == true)
-                {
-                    if (string.IsNullOrWhiteSpace(textbox4.Text))
-                    {
-                 //       MessageBox.Show("不得为空");
-                        ShowMessageforView(lstbxMessageView2, "不得为空");
-                        textbox4.Background = Brushes.Coral;
-                        textbox4.Focus();
-                    }
-                    else
-                    {
-                        string str = textbox4.Text;
-                        string[] sArray = Regex.Split(str, ",", RegexOptions.IgnoreCase);
-                        foreach (string i in sArray)
-                        {
-                            if (int.Parse(i.ToString()) > 32)
-                            {
-          //                      MessageBox.Show("通道号不得大于32");
-                                ShowMessageforView(lstbxMessageView2, "通道号不得大于32");
-                                textbox4.Background = Brushes.Coral;
-                                textbox4.Focus();
-                            }
-                            else
-                            {
-                                textbox4.Background = Brushes.White;
-                                ChannelConfig[3] = Byte.Parse(textbox4.Text);
-                                dirConfig[3] = (this.lane4Combox.SelectedItem as comboDir).ID.ToString();
-                                dir_C[3] = (int)(this.lane4Combox.SelectedItem as comboDir).ID;
-                                Start.IsEnabled = true;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-//                    MessageBox.Show("选择相对的记录操作14");
-                }
-            }           
         }
 
         private void textbox1_TextChanged(object sender, TextChangedEventArgs e)
@@ -872,6 +973,37 @@ public partial class MainWindow//:MetroWindow
 
             protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
+ 
+            if (sendThread != null)
+            { sendThread.Abort(); }
+            if (sendUdpClient != null)
+            { sendUdpClient.Close(); }
+
+            if ((tcpClient != null) && (tcpClient.Connected))
+            {
+                tcpClient = null;
+                DisConnect();
+                stopwatch.Stop();
+//                ShowMessageforView(lstbxMessageView2, "[本次运行时间: " + stopwatch.Elapsed.TotalMinutes + "mins]");
+            }
+            try
+            {
+                tx.Abort();
+                packjson.Abort();
+                toSC.Abort();
+            }
+            catch (Exception se)
+            {
+                //                MessageBox.Show(se.Message+ Environment.NewLine);
+//                ShowMessageforView(lstbxMessageView2, se.Message + Environment.NewLine);
+            }
+
+
+            IsUdpcRecvStart = false;
+            //               MessageBox.Show("模拟电警已停止");
+ //           ShowMessageforView(lstbxMessageView2, "模拟电警已停止");
+
+            Start.IsEnabled = false;
             Application.Current.Shutdown();
         }
 
@@ -880,22 +1012,18 @@ public partial class MainWindow//:MetroWindow
                 lstbxMessageView2.Items.Clear();
             }
 
-            private void Button_Click_1(object sender, RoutedEventArgs e)
+            private void btnShowLog_Click(object sender, RoutedEventArgs e)
             {
-                string CopyText = "";
-                for (int i = 0; i < lstbxMessageView2.SelectedItems.Count; i++)
-                {
 
-                    CopyText = CopyText + Environment.NewLine + lstbxMessageView2.SelectedItems[i].ToString();
-                }
-                try
-                { Clipboard.SetText(CopyText); }
-                catch (Exception se)
-                {
-                    //MessageBox.Show(se.Message  + Environment.NewLine);
-                    ShowMessageforView(lstbxMessageView2, se.Message + Environment.NewLine);
+               string nowT = DateTime.Now.ToLocalTime().ToString("HH_mm_ss");
+        string filename = ".\\jsonlog" + tmpEPip+"_"+tmpEPport +"_"+ nowT+".txt";
+                 ShowMessageforView(lstbxMessageView2,"开始打印数据到"+filename);
+                 if (sw == null)
+                 {
+                     sw = new System.IO.StreamWriter(filename);
+                 }
 
-                }
+                Showlog.IsEnabled=false;
 
             }
 

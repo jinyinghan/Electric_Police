@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SC ip="10.21.48.135" winShow="1" logShow="0">
+  <EP ip="10.15.48.11" port="7200" t_min="2" t_max="6" >
+    <Lan id="1" dir="TL" channel="4"/><!--车道1,左转,通道4-->
+    <Lan id="2" dir="TS" channel="5"/><!--车道2,直行,通道5-->
+    <Lan id="3" dir="TR" channel="6"/><!--车道3,右转,通道6-->
+  </EP>
+</SC>
+
+<!--重要说明:-->
+<!--SC ip :请确保信号机版本合法,且与电警通信正常-->
+<!--winShow:"0"不显示界面,"1"显示界面;logShow:"0"不打印日志,"1"打印日志"-->
+<!--dir合法值:"TL"(左转),"TS"(直行),"TR"(右转),"SL"(直左),"SR"(直右) -->
+<!--channel合法值:1-32 -->
+
